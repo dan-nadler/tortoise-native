@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Portfolio",
+  "description": "`Portfolio` represents a collection of `Asset`s and their respective weights in the portfolio.\n\nEach `Asset` in the `assets` vector corresponds to a weight in the `weights` vector. The weight represents the proportion of the portfolio's value that is invested in the asset.\n\n# Example\n\n``` use budget::sim::portfolio::{Asset, Portfolio};\n\nlet assets = vec![ Asset::new(\"Asset1\".to_string(), 0.1, 0.05), Asset::new(\"Asset2\".to_string(), 0.2, 0.1), ]; let weights = vec![0.5, 0.5]; let portfolio = Portfolio::new(assets, weights); ```",
+  "type": "object",
+  "required": [
+    "assets",
+    "weights"
+  ],
+  "properties": {
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Asset"
+      }
+    },
+    "weights": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "format": "double"
+      }
+    }
+  },
+  "definitions": {
+    "Asset": {
+      "description": "`Asset` represents a financial asset that can be invested in.\n\nMean return and standard deviation are used to calculate the return of the asset. These are annual values.\n\n# Example\n\n``` use budget::sim::portfolio::Asset;\n\nlet asset = Asset::new(\"Asset1\".to_string(), 0.1, 0.05); ```",
+      "type": "object",
+      "required": [
+        "mean_return",
+        "name",
+        "std_dev"
+      ],
+      "properties": {
+        "mean_return": {
+          "type": "number",
+          "format": "double"
+        },
+        "name": {
+          "type": "string"
+        },
+        "std_dev": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    }
+  }
+}

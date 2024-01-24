@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Account",
+  "type": "object",
+  "required": [
+    "balance",
+    "cash_flows",
+    "end_date",
+    "name",
+    "start_date"
+  ],
+  "properties": {
+    "balance": {
+      "type": "number",
+      "format": "double"
+    },
+    "cash_flows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CashFlow"
+      }
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "name": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "definitions": {
+    "CashFlow": {
+      "type": "object",
+      "required": [
+        "amount",
+        "frequency",
+        "tax_rate"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "end_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "frequency": {
+          "$ref": "#/definitions/Frequency"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "tax_rate": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "Frequency": {
+      "type": "string",
+      "enum": [
+        "Once",
+        "SemiMonthly",
+        "MonthStart",
+        "MonthEnd",
+        "Annually"
+      ]
+    }
+  }
+}

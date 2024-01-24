@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Payment",
+  "type": "object",
+  "required": [
+    "amount",
+    "cash_flow",
+    "date"
+  ],
+  "properties": {
+    "amount": {
+      "type": "number",
+      "format": "double"
+    },
+    "cash_flow": {
+      "$ref": "#/definitions/CashFlow"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "definitions": {
+    "CashFlow": {
+      "type": "object",
+      "required": [
+        "amount",
+        "frequency",
+        "tax_rate"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "end_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "frequency": {
+          "$ref": "#/definitions/Frequency"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "tax_rate": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "Frequency": {
+      "type": "string",
+      "enum": [
+        "Once",
+        "SemiMonthly",
+        "MonthStart",
+        "MonthEnd",
+        "Annually"
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+    "name": "create_account",
+    "description": "Create a new account. Accounts are the primary object and are used to accumulate and distribute cash flows over the life of the simulation.",
+    "parameters": {
+        "type": "object",
+        "required": [
+            "balance",
+            "end_date",
+            "name",
+            "start_date"
+        ],
+        "properties": {
+            "balance": {
+                "type": "number",
+                "format": "double"
+            },
+            "end_date": {
+                "type": "string",
+                "format": "date"
+            },
+            "name": {
+                "type": "string"
+            },
+            "start_date": {
+                "type": "string",
+                "format": "date"
+            }
+        }
+    }
+}
