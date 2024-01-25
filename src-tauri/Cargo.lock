@@ -4920,7 +4920,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tortoise-local"
+name = "tortoise-native"
 version = "0.0.0"
 dependencies = [
  "actix-web",

@@ -12,14 +12,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     ],\
     "dependencyTreeRoots": [\
       {\
-        "name": "tortoise-local",\
+        "name": "tortoise-native",\
         "reference": "workspace:."\
       }\
     ],\
     "enableTopLevelFallback": true,\
     "ignorePatternData": "(^(?:\\\\.yarn\\\\/sdks(?:\\\\/(?!\\\\.{1,2}(?:\\\\/|$))(?:(?:(?!(?:^|\\\\/)\\\\.{1,2}(?:\\\\/|$)).)*?)|$))$)",\
     "fallbackExclusionList": [\
-      ["tortoise-local", ["workspace:."]]\
+      ["tortoise-native", ["workspace:."]]\
     ],\
     "fallbackPool": [\
     ],\
@@ -2202,11 +2202,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
-      ["tortoise-local", [\
+      ["tortoise-native", [\
         ["workspace:.", {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["tortoise-local", "workspace:."],\
+            ["tortoise-native", "workspace:."],\
             ["@tauri-apps/api", "npm:1.5.3"],\
             ["@tauri-apps/cli", "npm:1.5.9"],\
             ["@types/react", "npm:18.2.48"],\

@@ -7,7 +7,7 @@ const valueFormatter = (number: number) => `${Math.sign(number) < 0 ? "-" : ""}\
 const CashFlowList: React.FC<{ cashFlows: CashFlow[] }> = ({ cashFlows }) => {
   const maxAmount = Math.max(...cashFlows.map((cashFlow: CashFlow) => cashFlow.amount));
 
-  return <Card>
+  return <Card style={{maxWidth: "350px"}}>
     <Title>Cash Flows</Title>
     <div
       className="flex flex-col gap-2 py-2"

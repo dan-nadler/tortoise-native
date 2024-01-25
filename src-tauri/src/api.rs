@@ -45,36 +45,49 @@ pub async fn list_available_scenarios() -> Result<String, String> {
     Ok(serde_json::to_string(&file_names).unwrap())
 }
 
-fn load_config(account_filename: String) -> sim::cash::Account {
+fn load_config(account_filename: String) -> Result<sim::cash::Account, serde_yaml::Error> {
     let dir = dirs::home_dir()
         .expect("Could not resolve home dir")
         .join(".tortoise");
     let account_str =
         fs::read_to_string(dir.join(account_filename.clone())).expect("Could not read file");
-    let mut account = sim::cash::Account::default();
 
     if account_filename.ends_with(".yaml") {
-        account = serde_yaml::from_str(&account_str).expect("Could not parse yaml file");
-    } else if account_filename.ends_with(".json") {
-        account = serde_json::from_str(&account_str).expect("Could not parse json file");
+        return serde_yaml::from_str(&account_str);
     } else {
         panic!("Unknown file type: {}", account_filename);
     }
-
-    account
 }
 
 #[tauri::command]
 #[allow(dead_code)]
-pub async fn get_results(account_filename: String) -> String {
+pub async fn get_results(account_filename: String) -> Result<String, String> {
     let account = load_config(account_filename);
-    let response = sim::run_simulation(account, None, false);
-    serde_json::to_string(&response).expect("Could not serialize account")
+
+    if !account.is_ok() {
+        return Err("{\"error\": \"Error loading account\"}".to_string());
+    }
+
+    let response = sim::run_simulation(account.unwrap(), None, false);
+
+    if !response.is_ok() {
+        return Err("{\"error\": \"Error running simulation\"}".to_string());
+    }
+
+    let r = serde_json::to_string(&response.unwrap()).unwrap();
+    println!("{:?}", r);
+    Ok(r.to_string())
 }
 
 #[tauri::command]
 #[allow(dead_code)]
-pub async fn get_cash_flows_from_config(account_filename: String) -> String {
+pub async fn get_cash_flows_from_config(account_filename: String) -> Result<String, String> {
     let account = load_config(account_filename);
-    serde_json::to_string(&account.cash_flows).expect("Could not serialize cash flows")
+
+    if !account.is_ok() {
+        return Err("{\"error\": \"Error loading account\"}".to_string());
+    }
+
+    let cf = serde_json::to_string(&account.unwrap().cash_flows).unwrap();
+    Ok(cf.to_string())
 }

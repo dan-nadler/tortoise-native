@@ -43,7 +43,7 @@ pub fn run_simulation(
     mut account: cash::Account,
     portfolio: Option<portfolio::Portfolio>,
     print_results: bool,
-) -> SimulationResult {
+) -> Result<SimulationResult, String> {
     let rebalance_frequency = Frequency::MonthStart;
 
     // read config from file account.yaml
@@ -94,7 +94,7 @@ pub fn run_simulation(
     if print_results {
         println!("--- End of Simulation ---");
     }
-    results
+    Ok(results)
 }
 
 // #[test]
