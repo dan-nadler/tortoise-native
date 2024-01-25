@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// # Example
 ///
 /// ```
-/// use budget::sim::portfolio::Asset;
+/// use tortoise_local::sim::portfolio::Asset;
 ///
 /// let asset = Asset::new("Asset1".to_string(), 0.1, 0.05);
 /// ```
@@ -43,7 +43,7 @@ impl Asset {
 /// # Example
 ///
 /// ```
-/// use budget::sim::portfolio::{Asset, Portfolio};
+/// use tortoise_local::sim::portfolio::{Asset, Portfolio};
 ///
 /// let assets = vec![
 ///     Asset::new("Asset1".to_string(), 0.1, 0.05),

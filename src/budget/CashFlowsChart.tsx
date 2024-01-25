@@ -1,11 +1,13 @@
 import React from "react";
 import { BarChart, Card, Title } from "@tremor/react";
-import { SimulationResult, Payment } from "../rustTypes";
+import { SimulationResult } from "../rustTypes/SimulationResult";
+import { Payment } from "../rustTypes/Payment";
+;
 
 const Chart: React.FC<{ results: SimulationResult }> = ({ results }) => {
     const valueFormatter = (number: number) => `$ ${new Intl.NumberFormat("us").format(number).toString()}`;
 
-    const cashFlowNames = results.payments.map((payment: Payment) => payment.cash_flow.name);
+    const cashFlowNames: string[] = results.payments.map((payment: Payment) => payment.cash_flow.name || "Unnammed Cash Flow");
     const uniqueCashFlowNames = [...new Set(cashFlowNames)];
 
     const chartData = new Map<string, any>();
@@ -46,6 +48,7 @@ const Chart: React.FC<{ results: SimulationResult }> = ({ results }) => {
             yAxisWidth={48}
             onValueChange={() => { }}
             stack={true}
+            layout="horizontal"
         />
     </Card>
 };

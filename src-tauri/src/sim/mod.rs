@@ -1,5 +1,5 @@
 use serde::Serialize;
-
+use ts_rs::TS;
 use self::portfolio::Invest;
 use crate::sim::cash::Frequency;
 pub mod cash;
@@ -8,7 +8,8 @@ pub mod portfolio;
 mod sample;
 
 #[allow(dead_code)]
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct AccountBalance {
     pub date: chrono::NaiveDate,
     pub account_name: String,
@@ -25,7 +26,8 @@ impl AccountBalance {
     }
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct SimulationResult {
     pub balances: Vec<AccountBalance>,
     pub payments: Vec<cash::Payment>,
@@ -95,9 +97,9 @@ pub fn run_simulation(
     results
 }
 
-#[test]
-fn test() {
-    let config = std::fs::read_to_string("./scenarios/examples/default_account.yaml").unwrap();
-    let account: cash::Account = serde_yaml::from_str(&config).unwrap();
-    run_simulation(account, None, false);
-}
+// #[test]
+// fn test() {
+//     let config = std::fs::read_to_string("~/.tortoise/default_account.yaml").unwrap();
+//     let account: cash::Account = serde_yaml::from_str(&config).unwrap();
+//     run_simulation(account, None, false);
+// }

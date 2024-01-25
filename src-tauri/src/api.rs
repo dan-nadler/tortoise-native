@@ -28,10 +28,7 @@ pub async fn list_available_scenarios() -> Result<String, String> {
             let path = entry.path();
             if path.is_file()
                 && path.extension().unwrap_or(OsStr::new("xyz")) == OsStr::new("yaml")
-                && path
-                    .file_name()?
-                    .to_str()?
-                    .contains("account")
+                && path.file_name()?.to_str()?.contains("account")
             {
                 Some(path)
             } else {
@@ -48,21 +45,36 @@ pub async fn list_available_scenarios() -> Result<String, String> {
     Ok(serde_json::to_string(&file_names).unwrap())
 }
 
-#[tauri::command]
-#[allow(dead_code)]
-pub async fn get_results(account_filename: String) -> String {
-    let dir = dirs::home_dir().unwrap().join(".tortoise");
-    let account_str = fs::read_to_string(dir.join(account_filename.clone())).unwrap();
+fn load_config(account_filename: String) -> sim::cash::Account {
+    let dir = dirs::home_dir()
+        .expect("Could not resolve home dir")
+        .join(".tortoise");
+    let account_str =
+        fs::read_to_string(dir.join(account_filename.clone())).expect("Could not read file");
     let mut account = sim::cash::Account::default();
 
     if account_filename.ends_with(".yaml") {
-        account = serde_yaml::from_str(&account_str).unwrap();
+        account = serde_yaml::from_str(&account_str).expect("Could not parse yaml file");
     } else if account_filename.ends_with(".json") {
-        account = serde_json::from_str(&account_str).unwrap();
+        account = serde_json::from_str(&account_str).expect("Could not parse json file");
     } else {
         panic!("Unknown file type: {}", account_filename);
     }
 
+    account
+}
+
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn get_results(account_filename: String) -> String {
+    let account = load_config(account_filename);
     let response = sim::run_simulation(account, None, false);
-    serde_json::to_string(&response).unwrap()
+    serde_json::to_string(&response).expect("Could not serialize account")
+}
+
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn get_cash_flows_from_config(account_filename: String) -> String {
+    let account = load_config(account_filename);
+    serde_json::to_string(&account.cash_flows).expect("Could not serialize cash flows")
 }

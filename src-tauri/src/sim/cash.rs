@@ -2,6 +2,7 @@ use chrono::{Datelike, NaiveDate};
 use memoize::memoize;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 #[allow(unused_imports)]
 use std::hash::{Hash, Hasher};
@@ -22,7 +23,8 @@ pub const DAYS_IN_MONTH: [u32; 12] = [
     31, // December
 ];
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub enum Frequency {
     Once,
     MonthStart,
@@ -96,7 +98,8 @@ impl Frequency {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct Payment {
     pub cash_flow: CashFlow,
     pub date: NaiveDate,
@@ -113,7 +116,8 @@ impl Payment {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct CashFlow {
     pub name: Option<String>,
     pub amount: f64,
@@ -190,7 +194,8 @@ impl CashFlow {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct Account {
     pub name: String,
     pub balance: f64,
