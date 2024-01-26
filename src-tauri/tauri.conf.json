@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "tortoise-native",
+    "productName": "The Tortoise",
     "version": "0.4.1"
   },
   "tauri": {
@@ -36,7 +36,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tortoise-native",
+        "title": "The Tortoise",
         "width": 1440,
         "height": 720
       }
