@@ -9,6 +9,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             api::get_results,
             api::list_available_scenarios,
+            api::list_available_portfolios,
             api::get_cash_flows_from_config,
         ])
         .run(tauri::generate_context!())

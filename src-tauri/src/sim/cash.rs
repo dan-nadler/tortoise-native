@@ -1,11 +1,14 @@
 use chrono::{Datelike, NaiveDate};
 use memoize::memoize;
+use ndarray::Array1;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[allow(unused_imports)]
 use std::hash::{Hash, Hasher};
+
+use super::portfolio::Invest;
 
 // a list contianing the number of days in each month
 pub const DAYS_IN_MONTH: [u32; 12] = [
@@ -336,12 +339,18 @@ fn test_account_hash() {
 }
 
 #[memoize(Capacity: 8192)]
-pub fn get_account_balance_at(account: Account, date: chrono::NaiveDate) -> f64 {
+pub fn get_account_balance_at(
+    account: Account,
+    date: chrono::NaiveDate,
+    num_samples: usize,
+) -> Array1<f64> {
     let mut a = account.clone();
     let f = a.flows_at(date);
-    let mut b: f64 = 0.0;
+    let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples);
     if date > a.start_date {
-        b = get_account_balance_at(a, date - chrono::Duration::days(1));
+        b = get_account_balance_at(a, date - chrono::Duration::days(1), num_samples);
+    } else {
+        b = Array1::<f64>::zeros(num_samples) + a.balance; // starting balance
     }
     b + f.iter().fold(0.0, |acc, x| acc + x.amount)
 }
@@ -365,46 +374,55 @@ fn test_get_account_balance_at() {
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+        1,
     );
-    assert_eq!(balance, 100.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 100.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 1, 2).unwrap(),
+        1,
     );
-    assert_eq!(balance, 100.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 100.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 1, 31).unwrap(),
+        1,
     );
-    assert_eq!(balance, 100.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 100.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 2, 1).unwrap(),
+        1,
     );
-    assert_eq!(balance, 200.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 200.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 2, 2).unwrap(),
+        1,
     );
-    assert_eq!(balance, 200.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 200.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 2, 29).unwrap(),
+        1,
     );
-    assert_eq!(balance, 200.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 200.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 3, 1).unwrap(),
+        1,
     );
-    assert_eq!(balance, 300.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 300.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 3, 2).unwrap(),
+        1,
     );
-    assert_eq!(balance, 300.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 300.0);
     let balance = get_account_balance_at(
         account.clone(),
         NaiveDate::from_ymd_opt(2020, 3, 31).unwrap(),
+        1,
     );
-    assert_eq!(balance, 300.0);
+    assert_eq!(balance, Array1::<f64>::zeros(1) + 300.0);
 }

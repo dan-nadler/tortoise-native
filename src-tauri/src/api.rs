@@ -17,18 +17,15 @@
 use crate::sim;
 use std::{ffi::OsStr, fs};
 
-#[tauri::command]
-#[allow(dead_code)]
-pub async fn list_available_scenarios() -> Result<String, String> {
-    let dir_path = dirs::home_dir().unwrap().join(".tortoise");
+fn get_file_names(dir_path: &std::path::Path, contains: &str) -> Vec<String> {
     let yaml_files = fs::read_dir(dir_path)
         .unwrap()
         .filter_map(|entry| {
             let entry = entry.unwrap();
             let path = entry.path();
             if path.is_file()
-                && path.extension().unwrap_or(OsStr::new("xyz")) == OsStr::new("yaml")
-                && path.file_name()?.to_str()?.contains("account")
+                && path.extension()? == OsStr::new("yaml")
+                && path.file_name()?.to_str()?.contains(contains)
             {
                 Some(path)
             } else {
@@ -42,10 +39,29 @@ pub async fn list_available_scenarios() -> Result<String, String> {
         .map(|path| path.file_name().unwrap().to_str().unwrap().to_string())
         .collect::<Vec<_>>();
 
-    Ok(serde_json::to_string(&file_names).unwrap())
+    file_names
 }
 
-fn load_config(account_filename: String) -> Result<sim::cash::Account, serde_yaml::Error> {
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn list_available_scenarios() -> Result<String, String> {
+    let file_names = get_file_names(&dirs::home_dir().unwrap().join(".tortoise"), "account");
+    Ok(serde_json::to_string(&file_names).expect("Could not serialize file names"))
+}
+
+// list available portfolios
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn list_available_portfolios() -> Result<String, String> {
+    let file_names = get_file_names(&dirs::home_dir().unwrap().join(".tortoise"), "portfolio");
+    Ok(serde_json::to_string(&file_names).expect("Could not serialize file names"))
+}
+
+fn load_config<T>(account_filename: String) -> Result<T, serde_yaml::Error>
+where
+    T: serde::de::DeserializeOwned,
+    T: Clone,
+{
     let dir = dirs::home_dir()
         .expect("Could not resolve home dir")
         .join(".tortoise");
@@ -61,28 +77,45 @@ fn load_config(account_filename: String) -> Result<sim::cash::Account, serde_yam
 
 #[tauri::command]
 #[allow(dead_code)]
-pub async fn get_results(account_filename: String) -> Result<String, String> {
-    let account = load_config(account_filename);
+pub async fn get_results(
+    account_filename: String,
+    portfolio_filename: Option<String>,
+) -> Result<String, String> {
+    let account = load_config::<sim::cash::Account>(account_filename);
+    let portfolio = match portfolio_filename {
+        Some(p) => Some(load_config::<sim::portfolio::Portfolio>(p).expect("Could not load portfolio")),
+        None => None,
+    };
 
     if !account.is_ok() {
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let response = sim::run_simulation(account.unwrap(), None, false);
+    let response = sim::run_simulation(
+        account.unwrap(),
+        portfolio,
+        false,
+        3,
+    );
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());
     }
 
     let r = serde_json::to_string(&response.unwrap()).unwrap();
-    println!("{:?}", r);
     Ok(r.to_string())
+}
+
+#[tokio::test]
+async fn test_get_results() {
+    let r = get_results("default_account.yaml".to_string(), None).await;
+    assert!(r.is_ok());
 }
 
 #[tauri::command]
 #[allow(dead_code)]
 pub async fn get_cash_flows_from_config(account_filename: String) -> Result<String, String> {
-    let account = load_config(account_filename);
+    let account = load_config::<sim::cash::Account>(account_filename);
 
     if !account.is_ok() {
         return Err("{\"error\": \"Error loading account\"}".to_string());

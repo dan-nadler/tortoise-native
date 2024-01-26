@@ -12,7 +12,7 @@ const Home: React.FC = () => {
         subtitle=""
         path="/"
       />
-      <div className="p-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <div>
             <Link to="/budget">Budget</Link>
@@ -28,13 +28,15 @@ const Home: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <MemoryRouter>
-      <Routes>
-        <Route path="/" Component={Home} />
-        <Route path="/budget" Component={Budget} />
-        <Route path="/retirement" Component={Retirement} />
-      </Routes>
-    </MemoryRouter>
+    <div className='p-4'>
+      <MemoryRouter>
+        <Routes>
+          <Route path="/" Component={Home} />
+          <Route path="/budget" Component={Budget} />
+          <Route path="/retirement" Component={Retirement} />
+        </Routes>
+      </MemoryRouter>
+    </div>
   );
 }
 

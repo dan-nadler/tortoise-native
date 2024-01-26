@@ -4,7 +4,7 @@ import Nav from "../Nav";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 import BalanceChart from "./BalanceChart";
 import CashFlowsChart from "./CashFlowsChart";
-import BudgetSelect from "./Select";
+import BudgetSelect from "../common/Select";
 import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
 
@@ -25,11 +25,11 @@ const Main: React.FC = () => {
         try {
             const startTime = performance.now();
 
-            let x = await invoke<string>("get_results", { accountFilename: selectedScenario });
+            let x = await invoke<string>("get_results", { accountFilename: selectedScenario, portfolioFilename: null });
             let j: SimulationResult = JSON.parse(x);
             console.log(j)
 
-            let c = await invoke<string>("get_cash_flows_from_config", { accountFilename: selectedScenario });
+            let c = await invoke<string>("get_cash_flows_from_config", { accountFilename: selectedScenario, portfolioFilename: null });
             let cf: CashFlow[] = JSON.parse(c);
             console.log(cf)
 
@@ -63,8 +63,9 @@ const Main: React.FC = () => {
     return (
         <div>
             <Nav subtitle="Budget" path="/budget" />
-            <div className="p-4 flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
                 <BudgetSelect
+                    message="Select a scenario"
                     availableScenarios={availableScenarios}
                     selectedScenario={selectedScenario}
                     setSelectedScenario={setSelectedScenario}

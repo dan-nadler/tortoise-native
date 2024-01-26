@@ -1,6 +1,6 @@
 import React from "react";
 import { AreaChart, Card, Title } from "@tremor/react";
-import {SimulationResult} from "../rustTypes";
+import {SimulationResult} from "../rustTypes/SimulationResult";
 
 const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
     const data = results.balances.map((balance) => {

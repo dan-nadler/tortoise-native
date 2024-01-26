@@ -1,8 +1,11 @@
 use super::cash::Account;
+use super::cash::Frequency;
+use ndarray::Array1;
+use ndarray_rand::rand_distr::Normal;
+use ndarray_rand::RandomExt;
 use polars::df;
 use polars::prelude::*;
 use rand_distr::Distribution;
-use rand_distr::Normal;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -96,7 +99,7 @@ impl Portfolio {
         for n in 0..num_samples {
             let r = self.returns_vec(dates, &format!("Sample {}", n));
             let e = format!("Dataframe creation failed on sample number {}.", n);
-            df = df.hstack(&[r]).unwrap_or_else(|_| { panic!("{}", e) });
+            df = df.hstack(&[r]).unwrap_or_else(|_| panic!("{}", e));
         }
 
         df
@@ -193,29 +196,59 @@ mod portfolio_tests {
 }
 
 pub trait Invest {
-    fn invest(&mut self, portfolio: &Portfolio) -> f64;
+    fn invest(
+        &mut self,
+        starting_balance: &Array1<f64>,
+        portfolio: &Portfolio,
+        nsamples: &usize,
+        period: &Frequency,
+    ) -> Array1<f64>;
 
-    fn invest_asset(&mut self, asset: &Asset, weight: &f64) -> f64;
+    fn invest_asset(
+        &mut self,
+        asset: &Asset,
+        weight: &f64,
+        nsamples: &usize,
+        period: &Frequency,
+    ) -> Array1<f64>;
 }
 
 impl Invest for Account {
-    fn invest(&mut self, portfolio: &Portfolio) -> f64 {
+    // computes and returns the vectorized value of the account after investing in the portfolio for a single period.
+    // If the mean return and std are annual, then the period is a year.
+    fn invest(
+        &mut self,
+        starting_balance: &Array1<f64>,
+        portfolio: &Portfolio,
+        nsamples: &usize,
+        period: &Frequency,
+    ) -> Array1<f64> {
         let ai = portfolio.assets.iter();
         let wi = portfolio.weights.iter();
         let it = ai.zip(wi);
 
-        let mut income: f64 = 0.0;
+        let mut ret = Array1::<f64>::zeros(*nsamples);
         for (a, w) in it {
-            income += self.invest_asset(a, w);
+            ret = ret + self.invest_asset(a, w, nsamples, period);
         }
 
-        self.balance += income;
-
-        income
+        starting_balance.clone() * (1.0 + ret)
     }
 
-    fn invest_asset(&mut self, asset: &Asset, weight: &f64) -> f64 {
-        (weight * self.balance) * (asset.mean_return + (asset.std_dev * rand::random::<f64>()))
+    fn invest_asset(
+        &mut self,
+        asset: &Asset,
+        weight: &f64,
+        nsamples: &usize,
+        period: &Frequency,
+    ) -> Array1<f64> {
+        let normal = Normal::new(
+            asset.mean_return * period.fraction(),
+            asset.std_dev * period.fraction().sqrt(),
+        )
+        .unwrap(); // handle the Result here
+        let a = Array1::<f64>::random(*nsamples, normal);
+        *weight * &a
     }
 }
 
@@ -234,8 +267,13 @@ mod invest_tests {
         );
         let portfolio =
             Portfolio::new(vec![Asset::new("Asset 1".to_string(), 0.1, 0.0)], vec![1.0]);
-        account.invest(&portfolio);
-        assert_eq!(account.balance, 1100.0);
+        let i = account.invest(
+            &(Array1::zeros(10) + 1000.0),
+            &portfolio,
+            &10,
+            &Frequency::Annually,
+        );
+        assert_eq!(i, Array1::<f64>::zeros(10) + 1100.0);
     }
 
     #[test]
@@ -254,7 +292,12 @@ mod invest_tests {
             ],
             vec![0.5, 0.5],
         );
-        account.invest(&portfolio);
-        assert_eq!(account.balance, 1150.0);
+        let i = account.invest(
+            &(Array1::zeros(10) + 1000.0),
+            &portfolio,
+            &10,
+            &Frequency::Annually,
+        );
+        assert_eq!(i, Array1::<f64>::zeros(10) + 1150.0);
     }
 }

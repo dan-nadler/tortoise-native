@@ -10,12 +10,18 @@ That said, if you'd like to play with it, you can add a scenario by creating a `
 The json schema for this file at [src-tauri/src/schemas/.account.json](src-tauri/src/schemas/.account.json). This will allow you to 
 do simple budget forecasting by defining recurring or one-time cashflows into and out of an account.
 
+## Roadmap
+- [x] ~Define portfolios to use with accounts~ ✅
+- [ ] Basic portfolio management and investment forecasts
+    - [x] ~Define portfolio YAMLs~ ✅
+    - [x] ~Integrate investment returns into budget~ ✅
+    - [ ] Create a long-term investment forecast dashboard
+- [ ] Monte carlo forecasting
+    - [x] ~Vectorize the budget and investment algorithms~ ✅
+    - [ ] Return and display distribution information
 
 
-# Tauri + React + Typescript
-
-This template should help get you started developing with Tauri, React and Typescript in Vite.
-
+# Created with Tauri + React + Typescript
 ## Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)

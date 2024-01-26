@@ -1,7 +1,10 @@
+use core::num;
+
+use self::{cash::get_account_balance_at, portfolio::Invest};
+use crate::sim::cash::Frequency;
+use ndarray::{s, Array1, Array2, Axis};
 use serde::Serialize;
 use ts_rs::TS;
-use self::portfolio::Invest;
-use crate::sim::cash::Frequency;
 pub mod cash;
 pub mod excel;
 pub mod portfolio;
@@ -43,6 +46,7 @@ pub fn run_simulation(
     mut account: cash::Account,
     portfolio: Option<portfolio::Portfolio>,
     print_results: bool,
+    num_samples: usize,
 ) -> Result<SimulationResult, String> {
     let rebalance_frequency = Frequency::MonthStart;
 
@@ -55,28 +59,40 @@ pub fn run_simulation(
     let mut results = SimulationResult::new(vec![], vec![]);
 
     let mut d = account.start_date;
+    let num_days = account
+        .end_date
+        .signed_duration_since(account.start_date)
+        .num_days()
+        .abs() as usize;
+    let mut balance_arr = account.balance + Array2::<f64>::zeros((num_days + 2, num_samples));
 
-    while d < account.end_date {
-        let b = account.balance_at(d);
+    let mut i = 0;
+    while d <= account.end_date {
+        let mut bd = get_account_balance_at(account.clone(), d, num_samples);
 
-        // TODO: This attributes the full future month's investment income to the first day of the month. This is not correct.
-        if rebalance_frequency.matches(&d, &Some(account.start_date), &Some(account.end_date))
-            && portfolio.is_some()
+        if portfolio.is_some()
+            && rebalance_frequency.matches(&d, &Some(account.start_date), &Some(account.end_date))
         {
-            let i = account.invest(portfolio.as_ref().unwrap()) * rebalance_frequency.fraction();
-            if print_results {
-                println!("Investment income of {}, on {}", i, d);
-            }
+            let bd_post_investment = account.invest(
+                &bd,
+                &portfolio.as_ref().unwrap(),
+                &num_samples,
+                &rebalance_frequency,
+            );
+            bd = bd_post_investment;
         }
 
-        if print_results {
-            println!("{}, {} balance, {}", d, account.name, b);
-        }
-        results
-            .balances
-            .push(AccountBalance::new(d, account.name.clone(), b));
+        let new_bal = &bd;
+        balance_arr.slice_mut(s![i + 1, ..]).assign(&new_bal);
+
+        results.balances.push(AccountBalance::new(
+            d,
+            account.name.clone(),
+            balance_arr.slice_mut(s![i, ..]).mean().unwrap(),
+        ));
 
         d = d.succ_opt().unwrap();
+        i += 1;
     }
 
     let mut d = account.start_date;
@@ -97,9 +113,13 @@ pub fn run_simulation(
     Ok(results)
 }
 
-// #[test]
-// fn test() {
-//     let config = std::fs::read_to_string("~/.tortoise/default_account.yaml").unwrap();
-//     let account: cash::Account = serde_yaml::from_str(&config).unwrap();
-//     run_simulation(account, None, false);
-// }
+#[test]
+fn test() {
+    let dir = dirs::home_dir()
+        .unwrap()
+        .join(".tortoise")
+        .join("default_account.yaml");
+    let config = std::fs::read_to_string(dir.to_str().unwrap()).unwrap();
+    let account: cash::Account = serde_yaml::from_str(&config).unwrap();
+    let _r = run_simulation(account, None, false, 1).unwrap();
+}
