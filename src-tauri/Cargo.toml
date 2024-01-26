@@ -19,7 +19,6 @@ schemars = { version = "0.8.16", features = [ "chrono" ] }
 rand = "0.8.5"
 xlsxwriter = "0.6.0"
 memoize = "0.4.2"
-polars = { version = "0.36.2", features = ["lazy"] }
 rand_distr = { version = "0.4.3", features = ["serde"] }
 env_logger = "0.11.0"
 tauri = { version = "1.5", features = ["shell-open"] }
