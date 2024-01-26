@@ -52,7 +52,7 @@ jobs:
           releaseBody: 'Development version - WORK IN PROGRESS'
           releaseDraft: true
           prerelease: true
-          args: --target aarch64-apple-darwin
+          args: --target aarch64-apple-darwin --verbose
 
       - name: Build Intel
         uses: tauri-apps/tauri-action@v0
@@ -70,4 +70,4 @@ jobs:
           releaseBody: 'Development version - WORK IN PROGRESS'
           releaseDraft: true
           prerelease: true
-          args: --target x86_64-apple-darwin
+          args: --target x86_64-apple-darwin --verbose
