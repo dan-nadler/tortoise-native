@@ -8,8 +8,6 @@ use ts_rs::TS;
 #[allow(unused_imports)]
 use std::hash::{Hash, Hasher};
 
-use super::portfolio::Invest;
-
 // a list contianing the number of days in each month
 pub const DAYS_IN_MONTH: [u32; 12] = [
     31, // January
