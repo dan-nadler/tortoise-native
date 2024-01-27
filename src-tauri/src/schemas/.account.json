@@ -71,6 +71,12 @@
         "tax_rate": {
           "type": "number",
           "format": "double"
+        }, 
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

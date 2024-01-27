@@ -3,6 +3,7 @@
 
 mod api;
 mod sim;
+mod io;
 
 fn main() {
     tauri::Builder::default()
@@ -11,6 +12,7 @@ fn main() {
             api::list_available_scenarios,
             api::list_available_portfolios,
             api::get_cash_flows_from_config,
+            api::get_account_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

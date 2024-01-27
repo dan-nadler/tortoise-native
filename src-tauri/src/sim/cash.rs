@@ -126,6 +126,7 @@ pub struct CashFlow {
     pub start_date: Option<chrono::NaiveDate>,
     pub end_date: Option<chrono::NaiveDate>,
     pub tax_rate: f64,
+    pub tags: Option<Vec<String>>,
 }
 
 impl CashFlow {
@@ -139,6 +140,7 @@ impl CashFlow {
         start_date: Option<chrono::NaiveDate>,
         end_date: Option<chrono::NaiveDate>,
         tax_rate: Option<f64>,
+        tags: Option<Vec<String>>,
     ) -> CashFlow {
         CashFlow {
             name,
@@ -147,6 +149,7 @@ impl CashFlow {
             start_date,
             end_date,
             tax_rate: tax_rate.unwrap_or(0.0),
+            tags,
         }
     }
 
@@ -305,6 +308,7 @@ fn test_account_hash() {
             None,
             None,
             None,
+            None,
         )],
         NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
         NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
@@ -317,6 +321,7 @@ fn test_account_hash() {
             Some("Test Cash Flow".to_string()),
             100.0,
             Some(Frequency::MonthStart),
+            None,
             None,
             None,
             None,
@@ -344,6 +349,7 @@ pub fn get_account_balance_at(
 ) -> Array1<f64> {
     let mut a = account.clone();
     let f = a.flows_at(date);
+    #[allow(unused_assignments)]
     let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples);
     if date > a.start_date {
         b = get_account_balance_at(a, date - chrono::Duration::days(1), num_samples);
@@ -362,6 +368,7 @@ fn test_get_account_balance_at() {
             Some("Test Cash Flow".to_string()),
             100.0,
             Some(Frequency::MonthStart),
+            None,
             None,
             None,
             None,

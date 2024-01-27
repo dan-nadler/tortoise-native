@@ -1,52 +1,53 @@
-const Select: React.FC<{
+import { Button, Select, SelectItem } from "@tremor/react";
+
+const MySelect: React.FC<{
   message: string;
   availableScenarios: string[];
   selectedScenario: string | null;
   setSelectedScenario: (scenario: string) => void;
   isRunning: boolean;
   run?: () => void;
+  runText?: string;
 }> = ({
   message,
   availableScenarios,
   selectedScenario,
   setSelectedScenario,
   isRunning,
-  run: run
+  run: run,
+  runText
 }) => {
     return (
-      <div className="bg-white rounded shadow flex-grow">
+      <div className="flex-grow">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             run && run();
           }}
         >
-          <div className="flex">
-            <select
-              id="scenario-input"
-              onChange={(e) => {
-                console.log(e.currentTarget.value);
-                setSelectedScenario(e.currentTarget.value);
+          <div className="flex gap-2">
+            <Select
+              onValueChange={(e) => {
+                setSelectedScenario(e);
               }}
+              placeholder={message}
               value={selectedScenario ?? undefined}
-              className="w-full p-2 border border-gray-300 rounded"
             >
-              <option value="">{message}</option>
               {availableScenarios?.map((scenario, i) => (
-                <option key={i} value={scenario}>
+                <SelectItem key={i} value={scenario}>
                   {scenario}
-                </option>
+                </SelectItem>
               ))}
-            </select>
+            </Select>
             {run &&
-              <button
+              <Button
                 type="submit"
-                className={`ml-2 px-4 ${isRunning ? 'bg-blue-300' : 'bg-blue-500'} text-white rounded`}
+                color={'blue'}
                 style={{ minWidth: "100px" }}
                 disabled={isRunning}
               >
-                Run
-              </button>
+                {runText ?? 'Run'}
+              </Button>
             }
           </div>
         </form>
@@ -54,4 +55,4 @@ const Select: React.FC<{
     );
   };
 
-export default Select;
+export default MySelect;
