@@ -1,4 +1,4 @@
-import { Button, Select, SelectItem } from "@tremor/react";
+import { Button, SearchSelect, SearchSelectItem } from "@tremor/react";
 
 const MySelect: React.FC<{
   message: string;
@@ -26,7 +26,7 @@ const MySelect: React.FC<{
           }}
         >
           <div className="flex gap-2">
-            <Select
+            <SearchSelect
               onValueChange={(e) => {
                 setSelectedScenario(e);
               }}
@@ -34,11 +34,11 @@ const MySelect: React.FC<{
               value={selectedScenario ?? undefined}
             >
               {availableScenarios?.map((scenario, i) => (
-                <SelectItem key={i} value={scenario}>
+                <SearchSelectItem key={i} value={scenario}>
                   {scenario}
-                </SelectItem>
+                </SearchSelectItem>
               ))}
-            </Select>
+            </SearchSelect>
             {run &&
               <Button
                 type="submit"

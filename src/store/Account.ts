@@ -26,10 +26,7 @@ type State = Account & {
 export const useStore = create<State>((set) => ({
     name: '',
     balance: 0,
-    cash_flows: [
-        { name: "Dan's Salary", amount: 10000, frequency: "SemiMonthly", start_date: "2024-01-01", end_date: "2024-12-31", tax_rate: 0.3, tags: ["Income"] },
-        { name: "Expenses", amount: -4000, frequency: "MonthStart", start_date: null, end_date: null, tax_rate: 0, tags: ["Expenses"] },
-    ],
+    cash_flows: [],
     start_date: '',
     end_date: '',
     setName: (name) => set((state) => ({ ...state, name })),

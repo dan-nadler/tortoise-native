@@ -67,7 +67,6 @@ where
     let dir = io::get_or_create_save_dir();
     let account_str =
         fs::read_to_string(dir.join(account_filename.clone())).expect("Could not read file");
-    println!("account_str: {}", account_str);
     if account_filename.ends_with(".yaml") {
         return serde_yaml::from_str(&account_str);
     } else {
@@ -136,6 +135,5 @@ pub async fn get_account_config(account_filename: String) -> Result<String, Stri
     }
 
     let cf = serde_json::to_string(&account.unwrap()).unwrap();
-    println!("{:?}", cf);
     Ok(cf.to_string())
 }

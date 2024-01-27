@@ -10,8 +10,8 @@ const Nav: React.FC<{ subtitle: string, path: string }> = ({ subtitle, path }) =
                         <Link to={"/"}>The Tortoise</Link>
                     </li>
                     {subtitle && <li className="text-gray-500 text-xl">/</li>}
-                    <li className="text-gray-500 text-xl hover:text-gray-400">
-                        <Link to={path}>{subtitle}</Link>
+                    <li className="text-gray-500 text-xl">
+                        <div>{subtitle}</div>
                     </li>
                 </ul>
             </div>

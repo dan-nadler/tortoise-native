@@ -4,6 +4,7 @@ import { useStore } from '../store/Account';
 import AccountSelect from "../common/Select";
 import { invoke } from '@tauri-apps/api';
 import { Account } from '../rustTypes/Account';
+import Nav from '../Nav';
 
 const frequencyToShortString = (frequency: string): string => {
     switch (frequency) {
@@ -107,7 +108,12 @@ const CashFlowCards: React.FC = () => {
                         </Flex>
                     </Flex>
                     <Flex flexDirection='row' className='w-auto'>
-                        <BadgeDelta size={'lg'} deltaType={item.amount > 0 ? 'increase' : 'decrease'}>{formatNumber(item.amount)}</BadgeDelta>
+                        <BadgeDelta
+                            size={'lg'}
+                            deltaType={item.amount > 0 ? 'moderateIncrease' : 'moderateDecrease'}
+                            tooltip={item.tax_rate ? `${item.tax_rate * 100}% tax` : 'No tax'}>
+                            {formatNumber(item.amount)}
+                        </BadgeDelta>
                     </Flex>
                 </Flex>
                 <Flex flexDirection='row' justifyContent='end' alignItems='end' className='flex-grow gap-2'>
@@ -141,20 +147,23 @@ const Main: React.FC = () => {
         setAll(b);
     }
 
-    return <div className='flex flex-col gap-2'>
-        <AccountSelect
-            message="Select a scenario"
-            availableScenarios={availableScenarios}
-            selectedScenario={selectedScenario}
-            setSelectedScenario={setSelectedScenario}
-            isRunning={isRunning}
-            run={loadScenario}
-            runText={'Load'}
-        />
-        <AccountForm />
-        <h3 className='text-lg'>Cash Flows</h3>
-        <div>
-            <CashFlowCards />
+    return <div>
+        <Nav subtitle="Scenario" path="/scenario" />
+        <div className='flex flex-col gap-2'>
+            <AccountSelect
+                message="Select a scenario"
+                availableScenarios={availableScenarios}
+                selectedScenario={selectedScenario}
+                setSelectedScenario={setSelectedScenario}
+                isRunning={isRunning}
+                run={loadScenario}
+                runText={'Load'}
+            />
+            <AccountForm />
+            <h3 className='text-lg'>Cash Flows</h3>
+            <div>
+                <CashFlowCards />
+            </div>
         </div>
     </div>
 }
