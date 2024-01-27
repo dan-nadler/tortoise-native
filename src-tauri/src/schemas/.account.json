@@ -68,15 +68,18 @@
           ],
           "format": "date"
         },
-        "tax_rate": {
-          "type": "number",
-          "format": "double"
-        }, 
         "tags": {
-          "type": "array",
+          "type": [
+            "array",
+            "null"
+          ],
           "items": {
             "type": "string"
           }
+        },
+        "tax_rate": {
+          "type": "number",
+          "format": "double"
         }
       }
     },
@@ -84,9 +87,9 @@
       "type": "string",
       "enum": [
         "Once",
-        "SemiMonthly",
         "MonthStart",
         "MonthEnd",
+        "SemiMonthly",
         "Annually"
       ]
     }
