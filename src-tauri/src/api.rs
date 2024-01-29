@@ -15,9 +15,11 @@
 // }
 
 use crate::sim;
+use crate::io;
 use std::{ffi::OsStr, fs};
 
-fn get_file_names(dir_path: &std::path::Path, contains: &str) -> Vec<String> {
+fn get_file_names(contains: &str) -> Vec<String> {
+    let dir_path = io::get_or_create_save_dir();
     let yaml_files = fs::read_dir(dir_path)
         .unwrap()
         .filter_map(|entry| {
@@ -45,7 +47,7 @@ fn get_file_names(dir_path: &std::path::Path, contains: &str) -> Vec<String> {
 #[tauri::command]
 #[allow(dead_code)]
 pub async fn list_available_scenarios() -> Result<String, String> {
-    let file_names = get_file_names(&dirs::home_dir().unwrap().join(".tortoise"), "account");
+    let file_names = get_file_names("account");
     Ok(serde_json::to_string(&file_names).expect("Could not serialize file names"))
 }
 
@@ -53,7 +55,7 @@ pub async fn list_available_scenarios() -> Result<String, String> {
 #[tauri::command]
 #[allow(dead_code)]
 pub async fn list_available_portfolios() -> Result<String, String> {
-    let file_names = get_file_names(&dirs::home_dir().unwrap().join(".tortoise"), "portfolio");
+    let file_names = get_file_names("portfolio");
     Ok(serde_json::to_string(&file_names).expect("Could not serialize file names"))
 }
 
@@ -62,12 +64,9 @@ where
     T: serde::de::DeserializeOwned,
     T: Clone,
 {
-    let dir = dirs::home_dir()
-        .expect("Could not resolve home dir")
-        .join(".tortoise");
+    let dir = io::get_or_create_save_dir();
     let account_str =
         fs::read_to_string(dir.join(account_filename.clone())).expect("Could not read file");
-
     if account_filename.ends_with(".yaml") {
         return serde_yaml::from_str(&account_str);
     } else {
@@ -122,5 +121,19 @@ pub async fn get_cash_flows_from_config(account_filename: String) -> Result<Stri
     }
 
     let cf = serde_json::to_string(&account.unwrap().cash_flows).unwrap();
+    Ok(cf.to_string())
+}
+
+
+#[tauri::command]
+#[allow(dead_code)]
+pub async fn get_account_config(account_filename: String) -> Result<String, String> {
+    let account = load_config::<sim::cash::Account>(account_filename);
+
+    if !account.is_ok() {
+        return Err("{\"error\": \"Error loading account\"}".to_string());
+    }
+
+    let cf = serde_json::to_string(&account.unwrap()).unwrap();
     Ok(cf.to_string())
 }

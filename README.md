@@ -4,6 +4,8 @@ This is an expansion and port of https://thetortoise.io into a native applicatio
 
 ![The Tortoise (Native)](https://github.com/Tortoise-Technologies/tortoise-native/blob/main/assets/WIP%20Screenshot.png?raw=true)
 
+![The Tortoise (Native)](https://github.com/Tortoise-Technologies/tortoise-native/blob/main/assets/Scenario%20Creation.png?raw=true)
+
 This is currently under development and not ready for general use.
 
 That said, if you'd like to play with it, you can add a scenario by creating a `~/.tortoise` directory and adding an account `yaml` file. 

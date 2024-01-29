@@ -1,8 +1,6 @@
-use core::num;
-
 use self::{cash::get_account_balance_at, portfolio::Invest};
 use crate::sim::cash::Frequency;
-use ndarray::{s, Array1, Array2, Axis};
+use ndarray;
 use serde::Serialize;
 use ts_rs::TS;
 pub mod cash;
@@ -64,7 +62,7 @@ pub fn run_simulation(
         .signed_duration_since(account.start_date)
         .num_days()
         .abs() as usize;
-    let mut balance_arr = account.balance + Array2::<f64>::zeros((num_days + 2, num_samples));
+    let mut balance_arr = account.balance + ndarray::Array2::<f64>::zeros((num_days + 2, num_samples));
 
     let mut i = 0;
     while d <= account.end_date {
@@ -83,12 +81,12 @@ pub fn run_simulation(
         }
 
         let new_bal = &bd;
-        balance_arr.slice_mut(s![i + 1, ..]).assign(&new_bal);
+        balance_arr.slice_mut(ndarray::s![i + 1, ..]).assign(&new_bal);
 
         results.balances.push(AccountBalance::new(
             d,
             account.name.clone(),
-            balance_arr.slice_mut(s![i, ..]).mean().unwrap(),
+            balance_arr.slice_mut(ndarray::s![i, ..]).mean().unwrap(),
         ));
 
         d = d.succ_opt().unwrap();

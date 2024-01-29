@@ -1,57 +1,82 @@
-const Select: React.FC<{
+import { Button, SearchSelect, SearchSelectItem } from "@tremor/react";
+import { useEffect, useRef } from "react";
+
+const MySelect: React.FC<{
   message: string;
   availableScenarios: string[];
   selectedScenario: string | null;
   setSelectedScenario: (scenario: string) => void;
   isRunning: boolean;
   run?: () => void;
+  runText?: string;
+  children?: React.ReactNode;
 }> = ({
   message,
   availableScenarios,
   selectedScenario,
   setSelectedScenario,
   isRunning,
-  run: run
+  run: run,
+  runText,
+  children
 }) => {
-    return (
-      <div className="bg-white rounded shadow flex-grow">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            run && run();
-          }}
-        >
-          <div className="flex">
-            <select
-              id="scenario-input"
-              onChange={(e) => {
-                console.log(e.currentTarget.value);
-                setSelectedScenario(e.currentTarget.value);
-              }}
-              value={selectedScenario ?? undefined}
-              className="w-full p-2 border border-gray-300 rounded"
-            >
-              <option value="">{message}</option>
-              {availableScenarios?.map((scenario, i) => (
-                <option key={i} value={scenario}>
-                  {scenario}
-                </option>
-              ))}
-            </select>
-            {run &&
-              <button
-                type="submit"
-                className={`ml-2 px-4 ${isRunning ? 'bg-blue-300' : 'bg-blue-500'} text-white rounded`}
-                style={{ minWidth: "100px" }}
-                disabled={isRunning}
-              >
-                Run
-              </button>
-            }
-          </div>
-        </form>
-      </div>
-    );
-  };
+  const selectRef = useRef<HTMLDivElement>(null);
 
-export default Select;
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "/") {
+        event.preventDefault(); // Prevent "/" character from being entered into the input
+        const inputElement = selectRef.current?.querySelector("input");
+        inputElement?.focus();
+        inputElement?.select(); // Highlight the current text in the input
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  return (
+    <div className="flex-grow">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          run && run();
+        }}
+      >
+        <div className="flex gap-2">
+          <SearchSelect
+            ref={selectRef}
+            onValueChange={(e) => {
+              setSelectedScenario(e);
+            }}
+            placeholder={message}
+            value={selectedScenario ?? undefined}
+          >
+            {availableScenarios?.map((scenario, i) => (
+              <SearchSelectItem key={i} value={scenario}>
+                {scenario}
+              </SearchSelectItem>
+            ))}
+          </SearchSelect>
+          {run && (
+            <Button
+              type="submit"
+              color={"blue"}
+              disabled={isRunning}
+              variant="secondary"
+            >
+              {runText ?? "Run"}
+            </Button>
+          )}
+          {children}
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default MySelect;
