@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api";
 import { useState, useEffect } from "react";
-import Nav from "../Nav";
 import Select from "../common/Select";
 import { Button } from "@tremor/react";
 

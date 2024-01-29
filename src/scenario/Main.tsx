@@ -160,11 +160,10 @@ const CashFlowCards: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const navigate = useNavigate();
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, _] = useState<boolean>(false);
-  const { setAll, reset, addCashFlow, cash_flows } = useStore();
+  const { setAll, reset } = useStore();
 
   async function listAvailableScenarios() {
     let x = await invoke<string>("list_available_scenarios");

@@ -4,14 +4,13 @@ import {
   MemoryRouter,
   Route,
   Routes,
-  useLocation,
 } from "react-router-dom";
 import Budget from "./budget/Main";
 import Retirement from "./retirement/Main";
 import Nav from "./Nav";
 import Scenario from "./scenario/Main";
 import CashFlowForm from "./scenario/CashFlow";
-import { Bold, Grid, Subtitle, Title } from "@tremor/react";
+import { Grid, Subtitle } from "@tremor/react";
 
 const Home: React.FC = () => {
   return (

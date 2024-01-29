@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api";
 import { useState, useEffect } from "react";
-import Nav from "../Nav";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 import BalanceChart from "./BalanceChart";
 import CashFlowsChart from "./CashFlowsChart";
