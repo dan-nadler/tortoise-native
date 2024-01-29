@@ -21,7 +21,10 @@ do simple budget forecasting by defining recurring or one-time cashflows into an
 - [ ] Monte carlo forecasting
     - [x] ~Vectorize the budget and investment algorithms~ ✅
     - [ ] Return and display distribution information
-
+- [ ] Create and edit scenanrios via the UI
+- [ ] Simple version control for scenarios
+    - [ ] Track budgets and goals over time
+    - [ ] Revert to previous versions
 
 # Created with Tauri + React + Typescript
 ## Recommended IDE Setup
