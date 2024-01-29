@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 fn save_dir() -> PathBuf {
-    dirs::config_local_dir()
-        .expect("No config local dir")
+    dirs::config_dir()
+        .expect("No config dir")
         .join("The Tortoise")
 }
 

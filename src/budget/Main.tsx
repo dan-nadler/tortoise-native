@@ -62,7 +62,6 @@ const Main: React.FC = () => {
 
     return (
         <div>
-            <Nav subtitle="Budget" path="/budget" />
             <div className="flex flex-col gap-4">
                 <BudgetSelect
                     message="Select a scenario"

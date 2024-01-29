@@ -21,6 +21,11 @@ type State = Account & {
     setCashFlowStartDate: (index: number, start_date: string) => void;
     setCashFlowEndDate: (index: number, end_date: string) => void;
     setCashFlowTaxRate: (index: number, tax_rate: number) => void;
+
+    addCashFlowTag: (index: number, tag: string) => void;
+    removeCashFlowTag: (index: number, tag: string) => void;
+    clearCashFlowTags: (index: number) => void;
+    setCashFlowTags: (index: number, tags: string[]) => void;
 };
 
 export const useStore = create<State>((set) => ({
@@ -74,7 +79,27 @@ export const useStore = create<State>((set) => ({
     }),
     setCashFlowTaxRate: (index, tax_rate) => set((state) => {
         const cash_flows = [...state.cash_flows];
-        cash_flows[index].tax_rate = tax_rate;
+        cash_flows[index].tax_rate = tax_rate ?? 0;
+        return { ...state, cash_flows };
+    }),
+    addCashFlowTag: (index, tag) => set((state) => {
+        const cash_flows = [...state.cash_flows];
+        cash_flows[index].tags = [...cash_flows[index].tags ?? [], tag];
+        return { ...state, cash_flows };
+    }),
+    removeCashFlowTag: (index, tag) => set((state) => {
+        const cash_flows = [...state.cash_flows];
+        cash_flows[index].tags = cash_flows[index].tags?.filter(t => t !== tag) || [];
+        return { ...state, cash_flows };
+    }),
+    clearCashFlowTags: (index) => set((state) => {
+        const cash_flows = [...state.cash_flows];
+        cash_flows[index].tags = [];
+        return { ...state, cash_flows };
+    }),
+    setCashFlowTags: (index, tags) => set((state) => {
+        const cash_flows = [...state.cash_flows];
+        cash_flows[index].tags = tags;
         return { ...state, cash_flows };
     }),
 }));

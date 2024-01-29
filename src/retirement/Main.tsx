@@ -30,7 +30,6 @@ const Main: React.FC = () => {
 
     return (
         <div>
-            <Nav subtitle="Retirement" path="/retirement" />
             <div className="flex flex-col gap-2 w-full">
                 <div className="flex flex-row gap-2 flex-grow min-w-[300px]">
                     <Select

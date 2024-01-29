@@ -49,6 +49,8 @@ const Chart: React.FC<{ results: SimulationResult }> = ({ results }) => {
             onValueChange={() => { }}
             stack={true}
             layout="horizontal"
+            enableLegendSlider={true}
+            
         />
     </Card>
 };

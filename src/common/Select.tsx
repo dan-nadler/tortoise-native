@@ -1,4 +1,5 @@
 import { Button, SearchSelect, SearchSelectItem } from "@tremor/react";
+import { useEffect, useRef } from "react";
 
 const MySelect: React.FC<{
   message: string;
@@ -8,6 +9,7 @@ const MySelect: React.FC<{
   isRunning: boolean;
   run?: () => void;
   runText?: string;
+  children?: React.ReactNode;
 }> = ({
   message,
   availableScenarios,
@@ -15,44 +17,66 @@ const MySelect: React.FC<{
   setSelectedScenario,
   isRunning,
   run: run,
-  runText
+  runText,
+  children
 }) => {
-    return (
-      <div className="flex-grow">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            run && run();
-          }}
-        >
-          <div className="flex gap-2">
-            <SearchSelect
-              onValueChange={(e) => {
-                setSelectedScenario(e);
-              }}
-              placeholder={message}
-              value={selectedScenario ?? undefined}
+  const selectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "/") {
+        event.preventDefault(); // Prevent "/" character from being entered into the input
+        const inputElement = selectRef.current?.querySelector("input");
+        inputElement?.focus();
+        inputElement?.select(); // Highlight the current text in the input
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  return (
+    <div className="flex-grow">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          run && run();
+        }}
+      >
+        <div className="flex gap-2">
+          <SearchSelect
+            ref={selectRef}
+            onValueChange={(e) => {
+              setSelectedScenario(e);
+            }}
+            placeholder={message}
+            value={selectedScenario ?? undefined}
+          >
+            {availableScenarios?.map((scenario, i) => (
+              <SearchSelectItem key={i} value={scenario}>
+                {scenario}
+              </SearchSelectItem>
+            ))}
+          </SearchSelect>
+          {run && (
+            <Button
+              type="submit"
+              color={"blue"}
+              disabled={isRunning}
+              variant="secondary"
             >
-              {availableScenarios?.map((scenario, i) => (
-                <SearchSelectItem key={i} value={scenario}>
-                  {scenario}
-                </SearchSelectItem>
-              ))}
-            </SearchSelect>
-            {run &&
-              <Button
-                type="submit"
-                color={'blue'}
-                style={{ minWidth: "100px" }}
-                disabled={isRunning}
-              >
-                {runText ?? 'Run'}
-              </Button>
-            }
-          </div>
-        </form>
-      </div>
-    );
-  };
+              {runText ?? "Run"}
+            </Button>
+          )}
+          {children}
+        </div>
+      </form>
+    </div>
+  );
+};
 
 export default MySelect;
