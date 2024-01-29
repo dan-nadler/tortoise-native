@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { TextInput, Badge } from "@tremor/react";
-import React, { MouseEventHandler, useRef } from "react";
+import React, { useRef } from "react";
 import TagsInput, { ReactTagsInputProps } from "react-tagsinput";
 
 interface MyTagsInputProps extends ReactTagsInputProps {

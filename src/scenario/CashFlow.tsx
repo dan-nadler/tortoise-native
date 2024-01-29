@@ -5,16 +5,12 @@ import {
   Button,
   Text,
   Divider,
-  SearchSelect,
-  SearchSelectItem,
-  Badge,
 } from "@tremor/react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useStore } from "../store/Account";
 import { useParams, useNavigate } from "react-router-dom";
 import MyNumberInput from "../common/NumberInput";
-import { ArrowLeftIcon, XMarkIcon, PlusIcon } from "@heroicons/react/24/solid";
-import TagsInput from "react-tagsinput";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import MyTagsInput from "../common/TagsInput";
 
 const CashFlowForm: React.FC = () => {
@@ -67,12 +63,6 @@ const CashFlowForm: React.FC = () => {
     }
     console.log(cash_flows[i]);
   }, [cash_flows[i].tax_rate]);
-
-  const uniqueTags = Array.from(
-    new Set(cash_flows.flatMap((cashFlow) => cashFlow.tags)),
-  ).filter((t) => t !== null);
-
-  const tagRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
