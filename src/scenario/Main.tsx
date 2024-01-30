@@ -11,6 +11,7 @@ import {
   Button,
   Divider,
   Icon,
+  NumberInput,
 } from "@tremor/react";
 import { useStore } from "../store/Account";
 import AccountSelect from "../common/Select";
@@ -38,11 +39,19 @@ const frequencyToShortString = (frequency: string): string => {
 };
 
 const AccountForm: React.FC = () => {
-  const { name, start_date, end_date, setName, setStartDate, setEndDate } =
-    useStore();
+  const {
+    name,
+    start_date,
+    end_date,
+    setName,
+    setStartDate,
+    setEndDate,
+    balance,
+    setBalance,
+  } = useStore();
 
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-col gap-2">
       <div className="flex flex-grow flex-row">
         <div className="flex-grow">
           <Text className="text-sm text-gray-600">Account Name</Text>
@@ -62,6 +71,15 @@ const AccountForm: React.FC = () => {
           <TextInput
             value={end_date}
             onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className="flex flex-grow flex-row gap-2">
+        <div className="flex-grow">
+          <Text className="text-sm text-gray-600">Starting Balance</Text>
+          <NumberInput
+            value={balance}
+            onChange={(e) => setBalance(parseFloat(e.target.value ?? ""))}
           />
         </div>
       </div>
@@ -106,7 +124,11 @@ const CashFlowCard: React.FC<{ item: CashFlow; i: number }> = ({ item, i }) => {
           <BadgeDelta
             size={"lg"}
             deltaType={
-              item.amount > 0 ? "moderateIncrease" : item.amount == 0 ? "unchanged" : "moderateDecrease"
+              item.amount > 0
+                ? "moderateIncrease"
+                : item.amount == 0
+                  ? "unchanged"
+                  : "moderateDecrease"
             }
             tooltip={item.tax_rate ? `${item.tax_rate * 100}% tax` : "No tax"}
           >
@@ -177,7 +199,7 @@ const Main: React.FC = () => {
 
   async function loadScenario() {
     let a = await invoke<string>("get_account_config", {
-      accountFilename: selectedScenario,
+      accountName: selectedScenario,
     });
     let b: Account = JSON.parse(a);
     console.log(b);
@@ -198,6 +220,7 @@ const Main: React.FC = () => {
             runText={"Load"}
           >
             <Button
+              className="flex-grow"
               color="emerald"
               variant="secondary"
               onClick={() => {
@@ -206,7 +229,12 @@ const Main: React.FC = () => {
             >
               Save
             </Button>
-            <Button color="neutral" variant="secondary" onClick={reset}>
+            <Button
+              color="neutral"
+              className="flex-grow"
+              variant="secondary"
+              onClick={reset}
+            >
               New
             </Button>
           </AccountSelect>

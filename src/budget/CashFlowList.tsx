@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Title, DeltaBar, Flex } from "@tremor/react";
+import { Card, Title, Text, DeltaBar, Flex } from "@tremor/react";
 import { CashFlow } from "../rustTypes/CashFlow";
 
 const valueFormatter = (number: number) => `${Math.sign(number) < 0 ? "-" : ""}\$${Intl.NumberFormat("us").format(Math.abs(number)).toString()}`;
@@ -10,7 +10,7 @@ const CashFlowList: React.FC<{ cashFlows: CashFlow[] }> = ({ cashFlows }) => {
   return <Card style={{ maxWidth: "350px" }}>
     <Flex flexDirection="row" alignItems="baseline">
       <Title>Cash Flows</Title>
-      <div className="text-xs">Log Scaled</div>
+      <Text>Log Scaled</Text>
     </Flex>
     <div
       className="flex flex-col gap-2 py-2"

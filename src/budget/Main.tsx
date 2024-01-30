@@ -24,11 +24,11 @@ const Main: React.FC = () => {
         try {
             const startTime = performance.now();
 
-            let x = await invoke<string>("get_results", { accountFilename: selectedScenario, portfolioFilename: null });
+            let x = await invoke<string>("get_results", { accountName: selectedScenario, portfolioFilename: null });
             let j: SimulationResult = JSON.parse(x);
             console.log(j)
 
-            let c = await invoke<string>("get_cash_flows_from_config", { accountFilename: selectedScenario, portfolioFilename: null });
+            let c = await invoke<string>("get_cash_flows_from_config", { accountName: selectedScenario, portfolioFilename: null });
             let cf: CashFlow[] = JSON.parse(c);
             console.log(cf)
 
