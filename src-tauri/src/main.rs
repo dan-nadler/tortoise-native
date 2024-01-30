@@ -8,7 +8,7 @@ mod sim;
 fn startup_tasks() {
     let example_account = sim::examples::simple_account::simple_account();
     
-    if !io::list_accounts().contains(&"example".to_string()) {
+    if !io::list_accounts().contains(&"Example".to_string()) {
         io::write_account_file(&example_account);
     }
 }
