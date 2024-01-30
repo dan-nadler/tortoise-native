@@ -69,7 +69,7 @@ const CashFlowForm: React.FC = () => {
   return (
     <>
       <form
-        className="h-min-dvh m-auto mt-10 flex w-[50%] flex-col justify-start gap-2"
+        className="h-min-dvh m-auto mt-10 flex max-w-[800px] flex-col justify-start gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           navigate("/scenario");
@@ -97,8 +97,8 @@ const CashFlowForm: React.FC = () => {
               />
             </div>
           </div>
-          <div className="flex flex-row gap-2">
-            <div className="flex-grow">
+          <div className="flex flex-row gap-2 flex-wrap">
+            <div className="flex-grow-[10]">
               <Text>Amount</Text>
               <MyNumberInput
                 min={undefined}
@@ -111,7 +111,7 @@ const CashFlowForm: React.FC = () => {
                 }
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 flex-grow-[1]">
               <div className="flex-grow">
                 <Text>Frequency</Text>
                 <Select
@@ -126,7 +126,7 @@ const CashFlowForm: React.FC = () => {
                 </Select>
               </div>
             </div>
-            <div className="flex-grow-0">
+            <div className="flex-grow-[1]">
               <Text>Tax Rate</Text>
               <MyNumberInput
                 min={0}
@@ -143,7 +143,7 @@ const CashFlowForm: React.FC = () => {
             </div>
           </div>
           <Divider>Effective Date Range (Optional)</Divider>
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 flex-wrap">
             <div className="flex-grow">
               <Text>Start Date (YYYY-MM-DD)</Text>
               <TextInput

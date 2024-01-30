@@ -7,6 +7,7 @@ pub mod cash;
 pub mod excel;
 pub mod portfolio;
 mod sample;
+pub mod examples;
 
 #[allow(dead_code)]
 #[derive(Serialize, Clone, TS)]

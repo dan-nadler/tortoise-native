@@ -130,8 +130,6 @@ pub struct CashFlow {
 }
 
 impl CashFlow {
-    // cache the cash flow payments
-
     // frequency is optional with default value of "once"
     pub fn new(
         name: Option<String>,
@@ -223,6 +221,10 @@ impl Account {
             start_date,
             end_date,
         }
+    }
+
+    pub fn fs_name(&self) -> String {
+        self.name.clone()
     }
 
     pub fn default() -> Account {

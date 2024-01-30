@@ -18,7 +18,7 @@ const MySelect: React.FC<{
   isRunning,
   run: run,
   runText,
-  children
+  children,
 }) => {
   const selectRef = useRef<HTMLDivElement>(null);
 
@@ -47,8 +47,9 @@ const MySelect: React.FC<{
           run && run();
         }}
       >
-        <div className="flex gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           <SearchSelect
+            className={`sm:w-auto md:w-[60%] flex-grow`}
             ref={selectRef}
             onValueChange={(e) => {
               setSelectedScenario(e);
@@ -64,6 +65,7 @@ const MySelect: React.FC<{
           </SearchSelect>
           {run && (
             <Button
+              className="flex-grow"
               type="submit"
               color={"blue"}
               disabled={isRunning}
