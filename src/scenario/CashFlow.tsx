@@ -12,6 +12,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import MyNumberInput from "../common/NumberInput";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import MyTagsInput from "../common/TagsInput";
+import { Frequency } from "../rustTypes/Frequency";
 
 const CashFlowForm: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const CashFlowForm: React.FC = () => {
     setCashFlowStartDate,
     setCashFlowEndDate,
     setCashFlowTags,
+    setCashFlowFrequency,
     removeCashFlowTag,
     cash_flows,
   } = useStore();
@@ -112,7 +114,10 @@ const CashFlowForm: React.FC = () => {
             <div className="flex flex-col gap-2">
               <div className="flex-grow">
                 <Text>Frequency</Text>
-                <Select defaultValue="Annually">
+                <Select
+                  defaultValue="Annually"
+                  onValueChange={(e) => setCashFlowFrequency(i, e as Frequency)}
+                >
                   <SelectItem value="Once">Once</SelectItem>
                   <SelectItem value="MonthStart">Month Start</SelectItem>
                   <SelectItem value="MonthEnd">Month End</SelectItem>
