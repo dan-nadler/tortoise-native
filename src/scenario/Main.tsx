@@ -13,12 +13,11 @@ import {
   Icon,
   NumberInput,
 } from "@tremor/react";
-import { useStore } from "../store/Account";
-import AccountSelect from "../common/Select";
+import { useAccountStore } from "../store/Account";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { useNavigate, useParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, listAccounts, saveAccount } from "../api/account";
+import { getAccount, listAccounts } from "../api/account";
 import { navContext } from "../common/NavProvider";
 
 const frequencyToShortString = (frequency: string): string => {
@@ -48,7 +47,7 @@ const AccountForm: React.FC = () => {
     setEndDate,
     balance,
     setBalance,
-  } = useStore();
+  } = useAccountStore();
 
   return (
     <div className="flex flex-col gap-2">
@@ -153,7 +152,7 @@ const CashFlowCard: React.FC<{
 };
 
 const CashFlowCards: React.FC = () => {
-  const { cash_flows, addCashFlow, name } = useStore();
+  const { cash_flows, addCashFlow, name } = useAccountStore();
   return (
     <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
       {cash_flows.map((item, i) => (
@@ -187,7 +186,7 @@ const CashFlowCards: React.FC = () => {
 
 const Main: React.FC = () => {
   const [_, setAvailableScenarios] = useState<string[]>([]);
-  const state = useStore();
+  const state = useAccountStore();
   const { name } = useParams<{ name: string }>();
   const { setAuxButtons } = useContext(navContext);
 

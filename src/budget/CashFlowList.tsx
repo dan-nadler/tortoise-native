@@ -20,7 +20,7 @@ const CashFlowList: React.FC<CashFlowListProps> = ({ cashFlows, ...props }) => {
         <Title>Cash Flows</Title>
         <Text>Log Scaled</Text>
       </Flex>
-      <div className="overflow-y-scroll flex flex-col gap-2 h-[724px]">
+      <div className="flex h-[724px] flex-col gap-2 overflow-y-scroll">
         {cashFlows
           .sort(
             (a: CashFlow, b: CashFlow) =>

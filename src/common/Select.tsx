@@ -6,8 +6,22 @@ import {
   SearchSelectProps,
 } from "@tremor/react";
 import { useEffect, useRef, useState } from "react";
-import { useStore } from "../store/Account";
+import { useAccountStore } from "../store/Account";
 import { getAccount, listAccounts } from "../api/account";
+import { create } from "zustand";
+
+interface ISelectedScenarioStore {
+  selectedScenario: string | null;
+  setSelectedScenario: (scenario: string) => void;
+}
+
+export const useSelectedScenarioStore = create<ISelectedScenarioStore>(
+  (set) => ({
+    selectedScenario: "",
+    setSelectedScenario: (scenario: string) =>
+      set({ selectedScenario: scenario }),
+  }),
+);
 
 interface MySelectProps extends Omit<SearchSelectProps, "children"> {
   message: string;
@@ -101,10 +115,10 @@ export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
   children,
 }) => {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const { setSelectedScenario, selectedScenario } = useSelectedScenarioStore();
   const [isRunning, _] = useState<boolean>(false);
   const [loaded, setLoaded] = useState<boolean>(false);
-  const state = useStore();
+  const state = useAccountStore();
 
   useEffect(() => {
     listAccounts().then(setAvailableScenarios);
@@ -125,10 +139,10 @@ export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
     }
   }, [state.name, selectedScenario]);
 
-  function loadScenario() {
-    if (!selectedScenario) return;
+  function loadScenario(s: string) {
+    setSelectedScenario(s);
     state.reset();
-    getAccount(selectedScenario).then((a) => {
+    getAccount(s).then((a) => {
       state.setAll(a);
     });
   }
@@ -141,9 +155,8 @@ export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
         message="Select a scenario"
         availableScenarios={availableScenarios}
         selectedScenario={selectedScenario}
-        setSelectedScenario={setSelectedScenario}
+        setSelectedScenario={loadScenario}
         isRunning={isRunning}
-        run={loadScenario}
         runText={loaded ? "Loaded" : "Load"}
         buttonProps={{
           disabled: loaded,

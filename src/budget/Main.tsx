@@ -1,23 +1,44 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, memo } from "react";
 import { SimulationResult } from "../rustTypes/SimulationResult";
-import BalanceChart from "./BalanceChart";
-import CashFlowsChart from "./CashFlowsChart";
+import BalanceChart, {
+  IBalanceData,
+  formatResultsForBalanceChart,
+} from "./BalanceChart";
+import CashFlowsChart, {
+  ICashFlowChartData,
+  formatResultsForCashFlowChart,
+} from "./CashFlowsChart";
 import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { getResults } from "../api/sim";
 import { getCashFlowsFromConfig, listAccounts } from "../api/account";
-import { Button, Col, Grid } from "@tremor/react";
-import { useStore } from "../store/Account";
+import { Button } from "@tremor/react";
+import { useAccountStore } from "../store/Account";
 import { navContext } from "../common/NavProvider";
+import { useSelectedScenarioStore } from "../common/Select";
+
+// The cash flow chart has performance issues with the number of items that can be
+// displayed. This is used to isolate the issue to the component so that the entire
+// dashboard doesn't experience performance issues.
+// Open support req: https://tremor-community.slack.com/archives/C055HLPMHU5/p1707061572871719
+const MemoCashFlowChart = memo(CashFlowsChart);
 
 const Main: React.FC = () => {
   const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(
     null,
   );
+
+  const [balanceChartData, setBalanceChartData] = useState<IBalanceData | null>(
+    null,
+  );
+
+  const [cashFlowsChartData, setCashFlowsChartData] =
+    useState<ICashFlowChartData | null>(null);
+
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [_, setAvailableScenarios] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const { name } = useStore();
+  const { name } = useAccountStore();
 
   async function budget(scenario: string) {
     setIsRunning(true);
@@ -38,6 +59,15 @@ const Main: React.FC = () => {
       }
 
       setBudgetResults(j);
+
+      // format data for balance chart
+      const balanceChartData = formatResultsForBalanceChart(j);
+      setBalanceChartData(balanceChartData);
+
+      // format data for cash flow chart
+      const cashFlowsChartData = formatResultsForCashFlowChart(j);
+      setCashFlowsChartData(cashFlowsChartData);
+
       setCashFlows(cf);
     } catch (e) {
       console.error(e);
@@ -49,6 +79,12 @@ const Main: React.FC = () => {
   useEffect(() => {
     listAccounts().then(setAvailableScenarios);
   }, []);
+
+  const { selectedScenario } = useSelectedScenarioStore();
+
+  useEffect(() => {
+    if (selectedScenario) budget(selectedScenario);
+  }, [selectedScenario]);
 
   const { setAuxButtons } = useContext(navContext);
   useEffect(() => {
@@ -73,10 +109,21 @@ const Main: React.FC = () => {
     <div>
       {/* <div className="flex flex-col gap-2 max-h-[500px]"> */}
       {budgetResults && (
-        <div className="flex flex-row gap-2">
-          <div className="flex w-[75%] flex-col gap-2">
-            <BalanceChart results={budgetResults} />
-            <CashFlowsChart results={budgetResults} />
+        <div className="flex flex-row flex-wrap gap-2">
+          <div className="flex flex-col gap-2 md:w-full lg:w-[75%]">
+            {balanceChartData && (
+              <BalanceChart
+                data={balanceChartData.data}
+                categories={balanceChartData.categories}
+              />
+            )}
+            {cashFlowsChartData && (
+              <MemoCashFlowChart
+                data={cashFlowsChartData.data}
+                categories={cashFlowsChartData.categories}
+                colors={cashFlowsChartData.colors}
+              />
+            )}
           </div>
           <div className="flex-grow">
             <CashFlowList cashFlows={cashFlows} className="" />

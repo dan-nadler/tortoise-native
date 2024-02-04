@@ -1,53 +1,52 @@
 import React from "react";
-import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Budget from "./budget/Main";
 import Retirement from "./retirement/Main";
 import Nav from "./Nav";
 import Scenario from "./scenario/Main";
 import CashFlowForm from "./scenario/CashFlow";
-import { Grid, Subtitle } from "@tremor/react";
-import { navContext } from "./common/NavProvider";
+import { Grid } from "@tremor/react";
 
-const Home: React.FC = () => {
-  return (
-    <div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <div>
-            <Link to="/scenario">
-              <Subtitle
-                color="slate"
-                className="font-light hover:opacity-80 active:opacity-70"
-              >
-                Scenarios
-              </Subtitle>
-            </Link>
-          </div>
-          <div>
-            <Link to="/budget">
-              <Subtitle
-                color="slate"
-                className="font-light hover:opacity-80 active:opacity-70"
-              >
-                Budget
-              </Subtitle>
-            </Link>
-          </div>
-          <div>
-            <Link to="/retirement">
-              <Subtitle
-                color="slate"
-                className="font-light hover:opacity-80 active:opacity-70"
-              >
-                Retirement
-              </Subtitle>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// const Home: React.FC = () => {
+//   return (
+//     <div>
+//       <div className="flex flex-col gap-4">
+//         <div className="flex flex-col gap-2">
+//           <div>
+//             <Link to="/scenario">
+//               <Subtitle
+//                 color="slate"
+//                 className="font-light hover:opacity-80 active:opacity-70"
+//               >
+//                 Scenarios
+//               </Subtitle>
+//             </Link>
+//           </div>
+//           <div>
+//             <Link to="/budget">
+//               <Subtitle
+//                 color="slate"
+//                 className="font-light hover:opacity-80 active:opacity-70"
+//               >
+//                 Budget
+//               </Subtitle>
+//             </Link>
+//           </div>
+//           <div>
+//             <Link to="/retirement">
+//               <Subtitle
+//                 color="slate"
+//                 className="font-light hover:opacity-80 active:opacity-70"
+//               >
+//                 Retirement
+//               </Subtitle>
+//             </Link>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 const App: React.FC = () => {
   

@@ -2,7 +2,7 @@ import { Button, Divider, Title } from "@tremor/react";
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeftIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { useStore } from "./store/Account";
+import { useAccountStore } from "./store/Account";
 import { AccountSelect } from "./common/Select";
 import { navContext } from "./common/NavProvider";
 import { saveAccount } from "./api/account";
@@ -15,7 +15,7 @@ const NavButton: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [previousRoot, setPreviousRoot] = React.useState<string | null>(null);
-  const state = useStore();
+  const state = useAccountStore();
   const previousRootName =
     previousRoot && capitalizeFirstLetter(previousRoot?.split("/")[1]);
 
@@ -47,7 +47,7 @@ const NavButton: React.FC = () => {
             navigate("/");
           }}
         >
-          Go Home
+          Budget
         </Button>
       );
     }
@@ -82,7 +82,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <li>
                 <Link to={"/"}>
                   <Title className="font-light hover:opacity-80 active:opacity-70">
-                    Home
+                    Budget
                   </Title>
                 </Link>
               </li>
