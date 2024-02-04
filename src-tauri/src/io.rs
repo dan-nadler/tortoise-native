@@ -2,7 +2,7 @@ use crate::sim::cash::Account;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::PathBuf;
-use std::str::EncodeUtf16;
+
 
 fn save_dir() -> PathBuf {
     dirs::config_dir()

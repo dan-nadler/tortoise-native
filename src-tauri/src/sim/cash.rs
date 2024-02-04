@@ -343,7 +343,6 @@ fn test_account_hash() {
     assert_ne!(hash1, hash2);
 }
 
-#[memoize(Capacity: 8192)]
 pub fn get_account_balance_at(
     account: Account,
     date: chrono::NaiveDate,

@@ -9,6 +9,7 @@ type State = Account & {
     setEndDate: (end_date: string) => void;
     setBalance: (balance: number) => void;
     setAll: (account: Account) => void;
+    setAccount: (account: Account) => void;
     reset: () => void;
     
     addCashFlow: (cashFlow: CashFlow) => void;
@@ -39,6 +40,7 @@ export const useStore = create<State>((set) => ({
     setEndDate: (end_date) => set((state) => ({ ...state, end_date })),
     setBalance: (balance) => set((state) => ({ ...state, balance })),
     setAll: (account) => set(account),
+    setAccount: (account) => set((state) => ({...account})),
     reset: () => set({ name: '', balance: 0, cash_flows: [], start_date: '', end_date: '' }),
     addCashFlow: (cashFlow) => set((state) => ({ ...state, cash_flows: [...state.cash_flows, cashFlow] })),
     removeCashFlow: (cashFlow) => set((state) => ({ ...state, cash_flows: state.cash_flows.filter(cf => cf !== cashFlow) })),

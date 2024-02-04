@@ -20,7 +20,7 @@ const MySelect: React.FC<{
   runText,
   children,
 }) => {
-  const selectRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -49,7 +49,7 @@ const MySelect: React.FC<{
       >
         <div className="flex flex-row flex-wrap gap-2">
           <SearchSelect
-            className={`sm:w-auto md:w-[60%] flex-grow`}
+            className={`flex-grow w-auto`}
             ref={selectRef}
             onValueChange={(e) => {
               setSelectedScenario(e);

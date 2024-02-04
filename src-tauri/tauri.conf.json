@@ -1,36 +1,31 @@
 {
   "build": {
-    "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
     "devPath": "http://localhost:1420",
     "distDir": "../dist"
   },
   "package": {
     "productName": "The Tortoise",
-    "version": "0.5.0"
+    "version": "0.6.0"
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    }
   },
   "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      },
-      "dialog": {
-        "save": true 
-      }
-    },
     "bundle": {
       "active": true,
-      "targets": "all",
-      "identifier": "io.thetortoise.dev",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
-      ]
+      ],
+      "identifier": "io.thetortoise.dev",
+      "targets": "all"
     },
     "security": {
       "csp": null
@@ -38,10 +33,10 @@
     "windows": [
       {
         "fullscreen": false,
+        "height": 720,
         "resizable": true,
         "title": "The Tortoise",
-        "width": 1440,
-        "height": 720
+        "width": 1440
       }
     ]
   }

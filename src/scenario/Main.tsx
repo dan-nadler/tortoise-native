@@ -15,11 +15,10 @@ import {
 } from "@tremor/react";
 import { useStore } from "../store/Account";
 import AccountSelect from "../common/Select";
-import { invoke, dialog } from "@tauri-apps/api";
-import { Account } from "../rustTypes/Account";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import { getAccount, listAccounts } from "../api/account";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -185,25 +184,21 @@ const Main: React.FC = () => {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, _] = useState<boolean>(false);
-  const { setAll, reset } = useStore();
-
-  async function listAvailableScenarios() {
-    let x = await invoke<string>("list_available_scenarios");
-    let j: string[] = JSON.parse(x);
-    setAvailableScenarios(j);
-  }
+  const { reset, setName, setAll } = useStore();
+  // const { reset, setAll } = state;
 
   useEffect(() => {
-    listAvailableScenarios();
+    console.log("Try");
+    listAccounts().then(setAvailableScenarios);
   }, []);
 
   async function loadScenario() {
-    let a = await invoke<string>("get_account_config", {
-      accountName: selectedScenario,
-    });
-    let b: Account = JSON.parse(a);
-    console.log(b);
-    setAll(b);
+    if (!selectedScenario) return;
+
+    let a = await getAccount(selectedScenario);
+    // console.log("A", a, setAccount, state, useStore);
+    // setAccount(a);
+    setName(a.name);
   }
 
   return (
@@ -220,16 +215,18 @@ const Main: React.FC = () => {
             runText={"Load"}
           >
             <Button
+              type="button"
               className="flex-grow"
               color="emerald"
               variant="secondary"
               onClick={() => {
-                dialog.save({});
+                // saveAccount(state);
               }}
             >
               Save
             </Button>
             <Button
+              type="button"
               color="neutral"
               className="flex-grow"
               variant="secondary"
