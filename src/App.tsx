@@ -1,16 +1,12 @@
 import React from "react";
-import {
-  Link,
-  MemoryRouter,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import Budget from "./budget/Main";
 import Retirement from "./retirement/Main";
 import Nav from "./Nav";
 import Scenario from "./scenario/Main";
 import CashFlowForm from "./scenario/CashFlow";
 import { Grid, Subtitle } from "@tremor/react";
+import { navContext } from "./common/NavProvider";
 
 const Home: React.FC = () => {
   return (
@@ -54,21 +50,22 @@ const Home: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  
   return (
-    <Grid className="min-h-dvh bg-tremor-background p-4 dark:bg-dark-tremor-background">
-      <MemoryRouter>
-        <Nav>
-          <Routes>
-            <Route path="/" Component={Home} />
-            <Route path="/budget" Component={Budget} />
-            <Route path="/retirement" Component={Retirement} />
-            <Route path="/scenario" Component={Scenario} />
-            <Route path="/scenario/:name" Component={Scenario} />
-            <Route path="/scenario/:name/:index" Component={CashFlowForm} />
-          </Routes>
-        </Nav>
-      </MemoryRouter>
-    </Grid>
+      <Grid className="min-h-dvh bg-tremor-background p-4 dark:bg-dark-tremor-background">
+        <MemoryRouter>
+          <Nav>
+            <Routes>
+              <Route path="/" Component={Budget} />
+              <Route path="/budget" Component={Budget} />
+              <Route path="/retirement" Component={Retirement} />
+              <Route path="/scenario" Component={Scenario} />
+              <Route path="/scenario/:name" Component={Scenario} />
+              <Route path="/scenario/:name/:index" Component={CashFlowForm} />
+            </Routes>
+          </Nav>
+        </MemoryRouter>
+      </Grid>
   );
 };
 

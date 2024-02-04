@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 import BalanceChart from "./BalanceChart";
 import CashFlowsChart from "./CashFlowsChart";
@@ -8,6 +8,7 @@ import { getResults } from "../api/sim";
 import { getCashFlowsFromConfig, listAccounts } from "../api/account";
 import { Button } from "@tremor/react";
 import { useStore } from "../store/Account";
+import { navContext } from "../common/NavProvider";
 
 const Main: React.FC = () => {
   const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(
@@ -49,12 +50,31 @@ const Main: React.FC = () => {
     listAccounts().then(setAvailableScenarios);
   }, []);
 
+  const { setAuxButtons } = useContext(navContext);
+  useEffect(() => {
+    setAuxButtons &&
+      setAuxButtons(
+        <Button
+          variant={"secondary"}
+          color="gray"
+          loading={isRunning}
+          disabled={!name}
+          onClick={() => budget(name)}
+        >
+          {name ? "Run Budget" : "Select a Scenario"}
+        </Button>,
+      );
+    return () => {
+      setAuxButtons && setAuxButtons(null);
+    }
+  });
+
   return (
     <div>
       <div className="flex flex-col gap-2">
-        <Button loading={isRunning} onClick={() => budget(name)}>
-          Run
-        </Button>
+        {/* <div className="m-auto p-10">
+          
+        </div> */}
         {budgetResults && (
           <div className="flex flex-col gap-2">
             <div className="flex flex-row items-stretch gap-2">

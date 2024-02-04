@@ -96,8 +96,9 @@ const MySelect: React.FC<MySelectProps> = ({
   );
 };
 
-export const AccountSelect: React.FC<{ className?: string }> = ({
+export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
   className,
+  children,
 }) => {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
@@ -109,7 +110,7 @@ export const AccountSelect: React.FC<{ className?: string }> = ({
     listAccounts().then(setAvailableScenarios);
   }, []);
 
-  useEffect(() => { 
+  useEffect(() => {
     // TODO: this is not a safe way to determine if the scenario is loaded
     // The name of the scenario is not guaranteed to be the name of the account, but
     // this is generally the case now by convention.
@@ -133,21 +134,24 @@ export const AccountSelect: React.FC<{ className?: string }> = ({
   }
 
   return (
-    <MySelect
-      enableClear={false}
-      className={className}
-      message="Select a scenario"
-      availableScenarios={availableScenarios}
-      selectedScenario={selectedScenario}
-      setSelectedScenario={setSelectedScenario}
-      isRunning={isRunning}
-      run={loadScenario}
-      runText={loaded ? "Loaded" : "Load"}
-      buttonProps={{
-        disabled: loaded,
-        color: loaded ? "green" : "blue",
-      }}
-    />
+    <div className="flex flex-row w-full justify-center gap-2">
+      <MySelect
+        enableClear={false}
+        className={className}
+        message="Select a scenario"
+        availableScenarios={availableScenarios}
+        selectedScenario={selectedScenario}
+        setSelectedScenario={setSelectedScenario}
+        isRunning={isRunning}
+        run={loadScenario}
+        runText={loaded ? "Loaded" : "Load"}
+        buttonProps={{
+          disabled: loaded,
+          color: loaded ? "green" : "blue",
+        }}
+      />
+      {children}
+    </div>
   );
 };
 
