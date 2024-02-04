@@ -7,7 +7,7 @@ import {
   Divider,
 } from "@tremor/react";
 import React, { useEffect } from "react";
-import { useStore } from "../store/Account";
+import { useAccountStore } from "../store/Account";
 import { useParams, useNavigate } from "react-router-dom";
 import MyNumberInput from "../common/NumberInput";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
@@ -32,8 +32,9 @@ const CashFlowForm: React.FC = () => {
     setCashFlowTags,
     setCashFlowFrequency,
     removeCashFlowTag,
+    removeCashFlowIndex,
     cash_flows,
-  } = useStore();
+  } = useAccountStore();
 
   const [amountError, setAmountError] = React.useState<boolean>(false);
   const [taxError, setTaxError] = React.useState<boolean>(false);
@@ -58,12 +59,10 @@ const CashFlowForm: React.FC = () => {
       cash_flows[i].tax_rate < 0 ||
       cash_flows[i].tax_rate > 1
     ) {
-      console.log("error!");
       setTaxError(true);
     } else {
       setTaxError(false);
     }
-    console.log(cash_flows[i]);
   }, [cash_flows[i].tax_rate]);
 
   return (
@@ -97,7 +96,7 @@ const CashFlowForm: React.FC = () => {
               />
             </div>
           </div>
-          <div className="flex flex-row gap-2 flex-wrap">
+          <div className="flex flex-row flex-wrap gap-2">
             <div className="flex-grow-[10]">
               <Text>Amount</Text>
               <MyNumberInput
@@ -111,7 +110,7 @@ const CashFlowForm: React.FC = () => {
                 }
               />
             </div>
-            <div className="flex flex-col gap-2 flex-grow-[1]">
+            <div className="flex flex-grow-[1] flex-col gap-2">
               <div className="flex-grow">
                 <Text>Frequency</Text>
                 <Select
@@ -143,7 +142,7 @@ const CashFlowForm: React.FC = () => {
             </div>
           </div>
           <Divider>Effective Date Range (Optional)</Divider>
-          <div className="flex flex-row gap-2 flex-wrap">
+          <div className="flex flex-row flex-wrap gap-2">
             <div className="flex-grow">
               <Text>Start Date (YYYY-MM-DD)</Text>
               <TextInput
@@ -174,7 +173,10 @@ const CashFlowForm: React.FC = () => {
         <Button type="submit" color="blue">
           Done
         </Button>
-        <Button type="button" color="red">
+        <Button type="button" color="red" onClick={() => {
+          removeCashFlowIndex(i);
+          navigate("/scenario");
+        }}>
           Delete
         </Button>
       </form>

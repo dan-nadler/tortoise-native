@@ -1,18 +1,5 @@
-// #[get("/")]
-// async fn index() -> impl Responder {
-//     HttpResponse::Ok().body("Hello, world!")
-// }
-
-// #[derive(Debug, serde::Deserialize, serde::Serialize)]
-// struct ScenarioQuery {
-//     scenario: String,
-// }
-
-// #[derive(Debug, Serialize)]
-// struct ScenarioResponse {
-//     scenario: String,
-//     // Add more fields as needed
-// }
+use serde_json::json;
+use serde_json::Value;
 
 use crate::io;
 use crate::sim;
@@ -45,18 +32,16 @@ fn get_file_names(contains: &str) -> Vec<String> {
 }
 
 #[tauri::command]
-#[allow(dead_code)]
-pub async fn list_available_scenarios() -> Result<String, String> {
+pub async fn list_available_scenarios() -> Result<Value, String> {
     let account_names = io::list_accounts();
-    Ok(serde_json::to_string(&account_names).expect("Could not serialize account names"))
+    Ok(json!(&account_names))
 }
 
 // list available portfolios
 #[tauri::command]
-#[allow(dead_code)]
-pub async fn list_available_portfolios() -> Result<String, String> {
+pub async fn list_available_portfolios() -> Result<Value, String> {
     let file_names = get_file_names("portfolio");
-    Ok(serde_json::to_string(&file_names).expect("Could not serialize file names"))
+    Ok(json!(&file_names))
 }
 
 fn load_config<T>(account_filename: String) -> Result<T, serde_yaml::Error>
@@ -75,11 +60,10 @@ where
 }
 
 #[tauri::command]
-#[allow(dead_code)]
 pub async fn get_results(
     account_name: String,
     portfolio_filename: Option<String>,
-) -> Result<String, String> {
+) -> Result<Value, String> {
     let account = io::read_account(&account_name);
     let portfolio = match portfolio_filename {
         Some(p) => {
@@ -92,52 +76,47 @@ pub async fn get_results(
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let response = sim::run_simulation(account.unwrap(), portfolio, false, 3);
+    let response = sim::run_simulation(account.unwrap(), portfolio, 100);
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());
     }
 
-    let r = serde_json::to_string(&response.unwrap()).unwrap();
-    Ok(r.to_string())
+    // let r = serde_json::to_string(&response.unwrap()).unwrap();
+    Ok(json!(&response.unwrap()))
 }
 
 #[tokio::test]
 async fn test_get_results() {
-    let r = get_results("default_account.yaml".to_string(), None).await;
+    let r = get_results("Example".to_string(), None).await;
     assert!(r.is_ok());
 }
 
 #[tauri::command]
-#[allow(dead_code)]
-pub async fn get_cash_flows_from_config(account_name: String) -> Result<String, String> {
+pub async fn get_cash_flows_from_config(account_name: String) -> Result<Value, String> {
     let account = io::read_account(&account_name);
 
     if !account.is_ok() {
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let cf = serde_json::to_string(&account.unwrap().cash_flows).unwrap();
-    Ok(cf.to_string())
+    Ok(json!(&account.unwrap().cash_flows))
 }
 
 #[tauri::command]
-#[allow(dead_code)]
-pub async fn get_account_config(account_name: String) -> Result<String, String> {
+pub async fn get_account_config(account_name: String) -> Result<Value, String> {
     let account = io::read_account(&account_name);
 
     if !account.is_ok() {
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let cf = serde_json::to_string(&account.unwrap()).unwrap();
-    Ok(cf.to_string())
+    Ok(json!(&account.unwrap()))
 }
 
 #[tauri::command]
 pub async fn save_account_config(account: String) -> Result<(), String> {
-    let account: sim::cash::Account =
-        serde_json::from_str(account.as_str()).expect("Could not deserialize account.");
-    // io::write_account_file(&account);
+    let account: sim::cash::Account = serde_json::from_str(&account).unwrap();
+    io::write_account_file(&account);
     Ok(())
 }

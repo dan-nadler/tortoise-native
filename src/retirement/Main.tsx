@@ -1,7 +1,8 @@
-import { invoke } from "@tauri-apps/api";
 import { useState, useEffect } from "react";
 import Select from "../common/Select";
 import { Button } from "@tremor/react";
+import { listAccounts } from "../api/account";
+import { listPortfolios } from "../api/portfolio";
 
 const Main: React.FC = () => {
     const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
@@ -11,13 +12,10 @@ const Main: React.FC = () => {
     const [isRunning, _] = useState<boolean>(false);
 
     async function getData() {
-        const [scenariosResponse, portfoliosResponse] = await Promise.all([
-            invoke<string>("list_available_scenarios"),
-            invoke<string>("list_available_portfolios")
+        const [scenarios, portfolios] = await Promise.all([
+            listAccounts(),
+            listPortfolios()
         ]);
-
-        const scenarios: string[] = JSON.parse(scenariosResponse);
-        const portfolios: string[] = JSON.parse(portfoliosResponse);
 
         setAvailableScenarios(scenarios);
         setAvailablePortfolios(portfolios);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Text,
   TextInput,
@@ -13,13 +13,12 @@ import {
   Icon,
   NumberInput,
 } from "@tremor/react";
-import { useStore } from "../store/Account";
-import AccountSelect from "../common/Select";
-import { invoke, dialog } from "@tauri-apps/api";
-import { Account } from "../rustTypes/Account";
+import { useAccountStore } from "../store/Account";
 import { CashFlow } from "../rustTypes/CashFlow";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import { getAccount, listAccounts } from "../api/account";
+import { navContext } from "../common/NavProvider";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -48,7 +47,7 @@ const AccountForm: React.FC = () => {
     setEndDate,
     balance,
     setBalance,
-  } = useStore();
+  } = useAccountStore();
 
   return (
     <div className="flex flex-col gap-2">
@@ -92,7 +91,11 @@ function formatNumber(num: number) {
   return (num < 0 ? "-$" : "$") + Math.abs(num).toLocaleString();
 }
 
-const CashFlowCard: React.FC<{ item: CashFlow; i: number }> = ({ item, i }) => {
+const CashFlowCard: React.FC<{
+  scenarioName: string;
+  item: CashFlow;
+  i: number;
+}> = ({ scenarioName, item, i }) => {
   const navigate = useNavigate();
   return (
     <Card
@@ -100,7 +103,7 @@ const CashFlowCard: React.FC<{ item: CashFlow; i: number }> = ({ item, i }) => {
       hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
       color="neutral"
-      onClick={() => navigate(`/scenario/${i}`)}
+      onClick={() => navigate(`/scenario/${scenarioName}/${i}`)}
     >
       <Flex
         justifyContent="between"
@@ -149,11 +152,11 @@ const CashFlowCard: React.FC<{ item: CashFlow; i: number }> = ({ item, i }) => {
 };
 
 const CashFlowCards: React.FC = () => {
-  const { cash_flows, addCashFlow } = useStore();
+  const { cash_flows, addCashFlow, name } = useAccountStore();
   return (
     <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
       {cash_flows.map((item, i) => (
-        <CashFlowCard key={i} item={item} i={i} />
+        <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
       ))}
       <Card
         className={`flex cursor-pointer flex-col flex-wrap py-4 
@@ -182,64 +185,44 @@ const CashFlowCards: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
-  const [isRunning, _] = useState<boolean>(false);
-  const { setAll, reset } = useStore();
-
-  async function listAvailableScenarios() {
-    let x = await invoke<string>("list_available_scenarios");
-    let j: string[] = JSON.parse(x);
-    setAvailableScenarios(j);
-  }
+  const [_, setAvailableScenarios] = useState<string[]>([]);
+  const state = useAccountStore();
+  const { name } = useParams<{ name: string }>();
+  const { setAuxButtons } = useContext(navContext);
 
   useEffect(() => {
-    listAvailableScenarios();
+    setAuxButtons &&
+      setAuxButtons(
+        <Button
+          type="reset"
+          color={"gray"}
+          variant="secondary"
+          onClick={() => {
+            state.reset();
+            state.setName("New Scenario");
+          }}
+        >
+          New
+        </Button>,
+      );
+    return () => {
+      setAuxButtons && setAuxButtons(null);
+    };
   }, []);
 
-  async function loadScenario() {
-    let a = await invoke<string>("get_account_config", {
-      accountName: selectedScenario,
-    });
-    let b: Account = JSON.parse(a);
-    console.log(b);
-    setAll(b);
-  }
+  useEffect(() => {
+    listAccounts().then(setAvailableScenarios);
+
+    if (name) {
+      getAccount(name).then((a) => {
+        state.setAll(a);
+      });
+    }
+  }, []);
 
   return (
     <div>
       <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2">
-          <AccountSelect
-            message="Select a scenario"
-            availableScenarios={availableScenarios}
-            selectedScenario={selectedScenario}
-            setSelectedScenario={setSelectedScenario}
-            isRunning={isRunning}
-            run={loadScenario}
-            runText={"Load"}
-          >
-            <Button
-              className="flex-grow"
-              color="emerald"
-              variant="secondary"
-              onClick={() => {
-                dialog.save({});
-              }}
-            >
-              Save
-            </Button>
-            <Button
-              color="neutral"
-              className="flex-grow"
-              variant="secondary"
-              onClick={reset}
-            >
-              New
-            </Button>
-          </AccountSelect>
-        </div>
-        <Divider />
         <AccountForm />
         <Divider>Cash Flows</Divider>
         <CashFlowCards />

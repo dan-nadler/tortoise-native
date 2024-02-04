@@ -1,89 +1,137 @@
-import { invoke } from "@tauri-apps/api";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, memo } from "react";
 import { SimulationResult } from "../rustTypes/SimulationResult";
-import BalanceChart from "./BalanceChart";
-import CashFlowsChart from "./CashFlowsChart";
-import BudgetSelect from "../common/Select";
+import BalanceChart, {
+  IBalanceData,
+  formatResultsForBalanceChart,
+} from "./BalanceChart";
+import CashFlowsChart, {
+  ICashFlowChartData,
+  formatResultsForCashFlowChart,
+} from "./CashFlowsChart";
 import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
+import { getResults } from "../api/sim";
+import { getCashFlowsFromConfig, listAccounts } from "../api/account";
+import { Button } from "@tremor/react";
+import { useAccountStore } from "../store/Account";
+import { navContext } from "../common/NavProvider";
+import { useSelectedScenarioStore } from "../common/Select";
+
+// The cash flow chart has performance issues with the number of items that can be
+// displayed. This is used to isolate the issue to the component so that the entire
+// dashboard doesn't experience performance issues.
+// Open support req: https://tremor-community.slack.com/archives/C055HLPMHU5/p1707061572871719
+const MemoCashFlowChart = memo(CashFlowsChart);
 
 const Main: React.FC = () => {
-    const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(null);
-    const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
-    const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
-    const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
-    const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(
+    null,
+  );
 
-    async function budget() {
-        if (!selectedScenario) {
-            console.error('no scenario selected');
-            return;
-        }
+  const [balanceChartData, setBalanceChartData] = useState<IBalanceData | null>(
+    null,
+  );
 
-        setIsRunning(true);
-        try {
-            const startTime = performance.now();
+  const [cashFlowsChartData, setCashFlowsChartData] =
+    useState<ICashFlowChartData | null>(null);
 
-            let x = await invoke<string>("get_results", { accountName: selectedScenario, portfolioFilename: null });
-            let j: SimulationResult = JSON.parse(x);
-            console.log(j)
+  const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
+  const [_, setAvailableScenarios] = useState<string[]>([]);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const { name } = useAccountStore();
 
-            let c = await invoke<string>("get_cash_flows_from_config", { accountName: selectedScenario, portfolioFilename: null });
-            let cf: CashFlow[] = JSON.parse(c);
-            console.log(cf)
+  async function budget(scenario: string) {
+    setIsRunning(true);
+    try {
+      const startTime = performance.now();
 
-            const endTime = performance.now();
-            const executionTime = endTime - startTime;
+      let j = await getResults(scenario);
+      let cf = await getCashFlowsFromConfig(scenario);
 
-            // Minumum execution time of 250ms to make the UI a bit more smooth.
-            if (executionTime < 250) {
-                await new Promise((resolve) => setTimeout(resolve, 250 - executionTime));
-            }
+      const endTime = performance.now();
+      const executionTime = endTime - startTime;
 
-            setBudgetResults(j);
-            setCashFlows(cf);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsRunning(false);
-        }
+      // Minumum execution time of 250ms to make the UI a bit more smooth.
+      if (executionTime < 250) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, 250 - executionTime),
+        );
+      }
+
+      setBudgetResults(j);
+
+      // format data for balance chart
+      const balanceChartData = formatResultsForBalanceChart(j);
+      setBalanceChartData(balanceChartData);
+
+      // format data for cash flow chart
+      const cashFlowsChartData = formatResultsForCashFlowChart(j);
+      setCashFlowsChartData(cashFlowsChartData);
+
+      setCashFlows(cf);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsRunning(false);
     }
+  }
 
-    async function listAvailableScenarios() {
-        let x = await invoke<string>("list_available_scenarios");
-        let j: string[] = JSON.parse(x);
-        setAvailableScenarios(j);
-    }
+  useEffect(() => {
+    listAccounts().then(setAvailableScenarios);
+  }, []);
 
-    useEffect(() => {
-        listAvailableScenarios();
-    }, []);
+  const { selectedScenario } = useSelectedScenarioStore();
 
-    return (
-        <div>
-            <div className="flex flex-col gap-4">
-                <BudgetSelect
-                    message="Select a scenario"
-                    availableScenarios={availableScenarios}
-                    selectedScenario={selectedScenario}
-                    setSelectedScenario={setSelectedScenario}
-                    isRunning={isRunning}
-                    run={budget}
-                />
-                {budgetResults &&
-                    <div className="flex flex-col w-full gap-2">
-                        <div className="flex flex-row gap-2 flex-grow w-full">
-                            <BalanceChart results={budgetResults} />
-                            <CashFlowList cashFlows={cashFlows} />
-                        </div>
-                        <div className="flex flex-row gap-2 flex-grow w-full">
-                            <CashFlowsChart results={budgetResults} />
-                        </div>
-                    </div>
-                }
-            </div>
+  useEffect(() => {
+    if (selectedScenario) budget(selectedScenario);
+  }, [selectedScenario]);
+
+  const { setAuxButtons } = useContext(navContext);
+  useEffect(() => {
+    setAuxButtons &&
+      setAuxButtons(
+        <Button
+          variant={"secondary"}
+          color="gray"
+          loading={isRunning}
+          disabled={!name}
+          onClick={() => budget(name)}
+        >
+          {name ? "Run Budget" : "Select a Scenario"}
+        </Button>,
+      );
+    return () => {
+      setAuxButtons && setAuxButtons(null);
+    };
+  });
+
+  return (
+    <div>
+      {/* <div className="flex flex-col gap-2 max-h-[500px]"> */}
+      {budgetResults && (
+        <div className="flex flex-row flex-wrap gap-2">
+          <div className="flex flex-col gap-2 md:w-full lg:w-[75%]">
+            {balanceChartData && (
+              <BalanceChart
+                data={balanceChartData.data}
+                categories={balanceChartData.categories}
+              />
+            )}
+            {cashFlowsChartData && (
+              <MemoCashFlowChart
+                data={cashFlowsChartData.data}
+                categories={cashFlowsChartData.categories}
+                colors={cashFlowsChartData.colors}
+              />
+            )}
+          </div>
+          <div className="flex-grow">
+            <CashFlowList cashFlows={cashFlows} className="" />
+          </div>
         </div>
-    );
-}
+      )}
+    </div>
+  );
+};
 
 export default Main;
