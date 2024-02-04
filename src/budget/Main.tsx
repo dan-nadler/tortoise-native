@@ -6,7 +6,7 @@ import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { getResults } from "../api/sim";
 import { getCashFlowsFromConfig, listAccounts } from "../api/account";
-import { Button } from "@tremor/react";
+import { Button, Col, Grid } from "@tremor/react";
 import { useStore } from "../store/Account";
 import { navContext } from "../common/NavProvider";
 
@@ -66,29 +66,23 @@ const Main: React.FC = () => {
       );
     return () => {
       setAuxButtons && setAuxButtons(null);
-    }
+    };
   });
 
   return (
     <div>
-      <div className="flex flex-col gap-2">
-        {/* <div className="m-auto p-10">
-          
-        </div> */}
-        {budgetResults && (
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-stretch gap-2">
-              <div className="flex w-[75%] flex-col gap-2">
-                <BalanceChart results={budgetResults} />
-                <CashFlowsChart results={budgetResults} />
-              </div>
-              <div className="flex-grow">
-                <CashFlowList cashFlows={cashFlows} className="" />
-              </div>
-            </div>
+      {/* <div className="flex flex-col gap-2 max-h-[500px]"> */}
+      {budgetResults && (
+        <div className="flex flex-row gap-2">
+          <div className="flex w-[75%] flex-col gap-2">
+            <BalanceChart results={budgetResults} />
+            <CashFlowsChart results={budgetResults} />
           </div>
-        )}
-      </div>
+          <div className="flex-grow">
+            <CashFlowList cashFlows={cashFlows} className="" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

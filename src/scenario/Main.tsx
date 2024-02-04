@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Text,
   TextInput,
@@ -19,6 +19,7 @@ import { CashFlow } from "../rustTypes/CashFlow";
 import { useNavigate, useParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { getAccount, listAccounts, saveAccount } from "../api/account";
+import { navContext } from "../common/NavProvider";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -185,11 +186,30 @@ const CashFlowCards: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
-  const [isRunning, _] = useState<boolean>(false);
+  const [_, setAvailableScenarios] = useState<string[]>([]);
   const state = useStore();
   const { name } = useParams<{ name: string }>();
+  const { setAuxButtons } = useContext(navContext);
+
+  useEffect(() => {
+    setAuxButtons &&
+      setAuxButtons(
+        <Button
+          type="reset"
+          color={"gray"}
+          variant="secondary"
+          onClick={() => {
+            state.reset();
+            state.setName("New Scenario");
+          }}
+        >
+          New
+        </Button>,
+      );
+    return () => {
+      setAuxButtons && setAuxButtons(null);
+    };
+  }, []);
 
   useEffect(() => {
     listAccounts().then(setAvailableScenarios);
@@ -200,14 +220,6 @@ const Main: React.FC = () => {
       });
     }
   }, []);
-
-  function loadScenario() {
-    if (!selectedScenario) return;
-
-    getAccount(selectedScenario).then((a) => {
-      state.setAll(a);
-    });
-  }
 
   return (
     <div>

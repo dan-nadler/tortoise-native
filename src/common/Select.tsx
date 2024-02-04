@@ -108,7 +108,7 @@ export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
 
   useEffect(() => {
     listAccounts().then(setAvailableScenarios);
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     // TODO: this is not a safe way to determine if the scenario is loaded
@@ -134,7 +134,7 @@ export const AccountSelect: React.FC<Partial<MySelectProps>> = ({
   }
 
   return (
-    <div className="flex flex-row w-full justify-center gap-2">
+    <div className="flex w-full flex-row justify-center gap-2">
       <MySelect
         enableClear={false}
         className={className}

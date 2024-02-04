@@ -12,7 +12,7 @@ const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
     });
 
     return (
-        <Card>
+        <Card className="h-auto">
             <Title>Account Balance Over Time</Title>
             <AreaChart
                 data={data}
