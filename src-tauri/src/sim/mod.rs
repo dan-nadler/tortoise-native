@@ -44,17 +44,9 @@ impl SimulationResult {
 pub fn run_simulation(
     mut account: cash::Account,
     portfolio: Option<portfolio::Portfolio>,
-    print_results: bool,
     num_samples: usize,
 ) -> Result<SimulationResult, String> {
     let rebalance_frequency = Frequency::MonthStart;
-
-    // read config from file account.yaml
-    if print_results {
-        println!("--- Beginning Simulation ---");
-        println!("Loaded Account: {}\n", account.name);
-    }
-
     let mut results = SimulationResult::new(vec![], vec![]);
 
     let mut d = account.start_date;
@@ -90,35 +82,25 @@ pub fn run_simulation(
             balance_arr.slice_mut(ndarray::s![i, ..]).mean().unwrap(),
         ));
 
+        let flows = account.flows_at(d);
+        for f in &flows {
+            results.payments.push(f.clone());
+        }
+
         d = d.succ_opt().unwrap();
         i += 1;
     }
 
-    let mut d = account.start_date;
-    while d < account.end_date {
-        let flows = account.flows_at(d);
-        for f in &flows {
-            if print_results {
-                println!("{}, {}, {}", d, f.cash_flow.name.clone().unwrap(), f.amount);
-            }
-            results.payments.push(f.clone());
-        }
-        d = d.succ_opt().unwrap();
-    }
-
-    if print_results {
-        println!("--- End of Simulation ---");
-    }
     Ok(results)
 }
 
 #[test]
-fn test() {
+fn test_run_simulation() {
     let dir = dirs::home_dir()
         .unwrap()
         .join(".tortoise")
         .join("default_account.yaml");
     let config = std::fs::read_to_string(dir.to_str().unwrap()).unwrap();
     let account: cash::Account = serde_yaml::from_str(&config).unwrap();
-    let _r = run_simulation(account, None, false, 1).unwrap();
+    let _r = run_simulation(account, None, 1).unwrap();
 }

@@ -5,6 +5,7 @@ use ndarray_rand::rand_distr::Normal;
 use ndarray_rand::RandomExt;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 /// `Asset` represents a financial asset that can be invested in.
 ///
@@ -14,11 +15,12 @@ use serde::{Deserialize, Serialize};
 /// # Example
 ///
 /// ```
-/// use tortoise_native::sim::portfolio::Asset;
+/// use app_lib::sim::portfolio::Asset;
 ///
 /// let asset = Asset::new("Asset1".to_string(), 0.1, 0.05);
 /// ```
-#[derive(Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct Asset {
     pub name: String,
     pub mean_return: f64,
@@ -43,7 +45,7 @@ impl Asset {
 /// # Example
 ///
 /// ```
-/// use tortoise_native::sim::portfolio::{Asset, Portfolio};
+/// use app_lib::sim::portfolio::{Asset, Portfolio};
 ///
 /// let assets = vec![
 ///     Asset::new("Asset1".to_string(), 0.1, 0.05),
@@ -52,7 +54,8 @@ impl Asset {
 /// let weights = vec![0.5, 0.5];
 /// let portfolio = Portfolio::new(assets, weights);
 /// ```
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, TS)]
+#[ts(export, export_to = "../src/rustTypes/")]
 pub struct Portfolio {
     pub assets: Vec<Asset>,
     pub weights: Vec<f64>,
