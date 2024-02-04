@@ -7,6 +7,8 @@ import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { getResults } from "../api/sim";
 import { getCashFlowsFromConfig, listAccounts } from "../api/account";
+import { Button } from "@tremor/react";
+import { useStore } from "../store/Account";
 
 const Main: React.FC = () => {
   const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(
@@ -16,19 +18,15 @@ const Main: React.FC = () => {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const { name } = useStore();
 
-  async function budget() {
-    if (!selectedScenario) {
-      console.error("no scenario selected");
-      return;
-    }
-
+  async function budget(scenario: string) {
     setIsRunning(true);
     try {
       const startTime = performance.now();
 
-      let j = await getResults(selectedScenario);
-      let cf = await getCashFlowsFromConfig(selectedScenario);
+      let j = await getResults(scenario);
+      let cf = await getCashFlowsFromConfig(scenario);
 
       const endTime = performance.now();
       const executionTime = endTime - startTime;
@@ -56,14 +54,7 @@ const Main: React.FC = () => {
   return (
     <div>
       <div className="flex flex-col gap-4">
-        <BudgetSelect
-          message="Select a scenario"
-          availableScenarios={availableScenarios}
-          selectedScenario={selectedScenario}
-          setSelectedScenario={setSelectedScenario}
-          isRunning={isRunning}
-          run={budget}
-        />
+        <Button loading={isRunning} onClick={() => budget(name)}>Run</Button>
         {budgetResults && (
           <div className="flex w-full flex-row gap-2">
             <div className="flex w-full flex-grow flex-col gap-2">

@@ -4,7 +4,7 @@ const stringFormatter = (number: number) => {
 
 export const valueFormatter = (number: number) => {
   const num = Math.abs(number);
-  if (num < 1_000) {
+  if (num < 10_000) {
     return stringFormatter(num);
   } else if (num < 10_000_000) {
     return stringFormatter(num / 1_000) + "K";

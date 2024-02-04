@@ -37,6 +37,14 @@
         "resizable": true,
         "title": "The Tortoise",
         "width": 1440
+      },
+      {
+        "label": "editor",
+        "fullscreen": false,
+        "height": 480,
+        "resizable": true,
+        "title": "Scenario Editor",
+        "width": 720
       }
     ]
   }

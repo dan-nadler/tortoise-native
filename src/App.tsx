@@ -18,7 +18,7 @@ const Home: React.FC = () => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <div>
-            <Link to="/Scenario">
+            <Link to="/scenario">
               <Subtitle
                 color="slate"
                 className="font-light hover:opacity-80 active:opacity-70"
@@ -63,7 +63,8 @@ const App: React.FC = () => {
             <Route path="/budget" Component={Budget} />
             <Route path="/retirement" Component={Retirement} />
             <Route path="/scenario" Component={Scenario} />
-            <Route path="/scenario/:index" Component={CashFlowForm} />
+            <Route path="/scenario/:name" Component={Scenario} />
+            <Route path="/scenario/:name/:index" Component={CashFlowForm} />
           </Routes>
         </Nav>
       </MemoryRouter>
