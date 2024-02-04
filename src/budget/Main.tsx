@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 import BalanceChart from "./BalanceChart";
 import CashFlowsChart from "./CashFlowsChart";
-import BudgetSelect from "../common/Select";
 import CashFlowList from "./CashFlowList";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { getResults } from "../api/sim";
@@ -15,8 +14,7 @@ const Main: React.FC = () => {
     null,
   );
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
-  const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [_, setAvailableScenarios] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const { name } = useStore();
 
@@ -53,16 +51,20 @@ const Main: React.FC = () => {
 
   return (
     <div>
-      <div className="flex flex-col gap-4">
-        <Button loading={isRunning} onClick={() => budget(name)}>Run</Button>
+      <div className="flex flex-col gap-2">
+        <Button loading={isRunning} onClick={() => budget(name)}>
+          Run
+        </Button>
         {budgetResults && (
-          <div className="flex w-full flex-row gap-2">
-            <div className="flex w-full flex-grow flex-col gap-2">
-              <BalanceChart results={budgetResults} />
-              <CashFlowsChart results={budgetResults} />
-            </div>
-            <div className="flex flex-grow-0 w-[500px] flex-col gap-2">
-              <CashFlowList cashFlows={cashFlows} />
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row items-stretch gap-2">
+              <div className="flex w-[75%] flex-col gap-2">
+                <BalanceChart results={budgetResults} />
+                <CashFlowsChart results={budgetResults} />
+              </div>
+              <div className="flex-grow">
+                <CashFlowList cashFlows={cashFlows} className="" />
+              </div>
             </div>
           </div>
         )}

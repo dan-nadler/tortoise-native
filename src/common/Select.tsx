@@ -110,6 +110,9 @@ export const AccountSelect: React.FC<{ className?: string }> = ({
   }, []);
 
   useEffect(() => { 
+    // TODO: this is not a safe way to determine if the scenario is loaded
+    // The name of the scenario is not guaranteed to be the name of the account, but
+    // this is generally the case now by convention.
     if (state.name == selectedScenario) {
       setLoaded(true);
     } else {
@@ -131,6 +134,7 @@ export const AccountSelect: React.FC<{ className?: string }> = ({
 
   return (
     <MySelect
+      enableClear={false}
       className={className}
       message="Select a scenario"
       availableScenarios={availableScenarios}

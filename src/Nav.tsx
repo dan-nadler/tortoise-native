@@ -93,21 +93,6 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Title>
               )}
             </li>
-            {pages &&
-              pages
-                .filter((p) => p)
-                .map((page) => {
-                  return (
-                    <>
-                      <Title className="font-light">//</Title>
-                      <li>
-                        <Title className="font-light">
-                          {page && capitalizeFirstLetter(page)}
-                        </Title>
-                      </li>
-                    </>
-                  );
-                })}
           </ul>
         </div>
         <AccountSelect

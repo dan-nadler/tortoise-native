@@ -1,27 +1,26 @@
 import React from "react";
-import { Card, Title, Text, DeltaBar, Flex } from "@tremor/react";
+import { Card, Title, Text, DeltaBar, Flex, CardProps } from "@tremor/react";
 import { CashFlow } from "../rustTypes/CashFlow";
 
 const valueFormatter = (number: number) =>
   `${Math.sign(number) < 0 ? "-" : ""}\$${Intl.NumberFormat("us").format(Math.abs(number)).toString()}`;
 
-const CashFlowList: React.FC<{ cashFlows: CashFlow[] }> = ({ cashFlows }) => {
+interface CashFlowListProps extends CardProps {
+  cashFlows: CashFlow[];
+}
+
+const CashFlowList: React.FC<CashFlowListProps> = ({ cashFlows, ...props }) => {
   const maxAmount = Math.max(
     ...cashFlows.map((cashFlow: CashFlow) => cashFlow.amount),
   );
 
   return (
-    <Card>
+    <Card {...props}>
       <Flex flexDirection="row" alignItems="baseline">
         <Title>Cash Flows</Title>
         <Text>Log Scaled</Text>
       </Flex>
-      <div
-        className="flex flex-col gap-2 py-2"
-        style={{
-          overflowY: "auto",
-        }}
-      >
+      <div className="flex flex-col gap-2 overflow-y-auto py-2">
         {cashFlows
           .sort(
             (a: CashFlow, b: CashFlow) =>

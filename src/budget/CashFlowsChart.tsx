@@ -46,7 +46,6 @@ const Chart: React.FC<{ results: SimulationResult }> = ({ results }) => {
     <Card>
       <Title>Cash Flows</Title>
       <BarChart
-        className="mt-6"
         data={chartDataArray}
         index="date"
         categories={uniqueCashFlowNames}

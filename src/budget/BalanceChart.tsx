@@ -15,7 +15,6 @@ const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
         <Card>
             <Title>Account Balance Over Time</Title>
             <AreaChart
-                className="h-72 mt-4"
                 data={data}
                 index="date"
                 yAxisWidth={60}
