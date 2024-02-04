@@ -18,7 +18,7 @@ import AccountSelect from "../common/Select";
 import { CashFlow } from "../rustTypes/CashFlow";
 import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, listAccounts } from "../api/account";
+import { getAccount, listAccounts, saveAccount } from "../api/account";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -184,21 +184,18 @@ const Main: React.FC = () => {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [isRunning, _] = useState<boolean>(false);
-  const { reset, setName, setAll } = useStore();
-  // const { reset, setAll } = state;
+  const state = useStore();
 
   useEffect(() => {
-    console.log("Try");
     listAccounts().then(setAvailableScenarios);
   }, []);
 
-  async function loadScenario() {
+  function loadScenario() {
     if (!selectedScenario) return;
 
-    let a = await getAccount(selectedScenario);
-    // console.log("A", a, setAccount, state, useStore);
-    // setAccount(a);
-    setName(a.name);
+    getAccount(selectedScenario).then((a) => {
+      state.setAll(a)
+    });
   }
 
   return (
@@ -220,7 +217,8 @@ const Main: React.FC = () => {
               color="emerald"
               variant="secondary"
               onClick={() => {
-                // saveAccount(state);
+                // TODO: Save account
+                saveAccount(state);
               }}
             >
               Save
@@ -230,7 +228,7 @@ const Main: React.FC = () => {
               color="neutral"
               className="flex-grow"
               variant="secondary"
-              onClick={reset}
+              onClick={state.reset}
             >
               New
             </Button>

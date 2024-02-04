@@ -1,5 +1,4 @@
 use chrono::{Datelike, NaiveDate};
-use memoize::memoize;
 use ndarray::Array1;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -349,15 +348,18 @@ pub fn get_account_balance_at(
     num_samples: usize,
 ) -> Array1<f64> {
     let mut a = account.clone();
-    let f = a.flows_at(date);
+    let f = a.flows_at(date).iter().fold(0.0, |acc, x| acc + x.amount);
     #[allow(unused_assignments)]
     let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples);
+
+    // TODO: refactor into a while loop without recursion to avoid stack overflow on very long simulations
+    // or else reimplement memoize with proper a proper cache key.
     if date > a.start_date {
         b = get_account_balance_at(a, date - chrono::Duration::days(1), num_samples);
     } else {
         b = Array1::<f64>::zeros(num_samples) + a.balance; // starting balance
     }
-    b + f.iter().fold(0.0, |acc, x| acc + x.amount)
+    b + f
 }
 
 #[test]

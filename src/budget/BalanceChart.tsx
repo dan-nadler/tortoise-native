@@ -1,6 +1,7 @@
 import React from "react";
 import { AreaChart, Card, Title } from "@tremor/react";
 import {SimulationResult} from "../rustTypes/SimulationResult";
+import { valueFormatter } from "../common/ValueFormatter";
 
 const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
     const data = results.balances.map((balance) => {
@@ -10,10 +11,6 @@ const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
         };
     });
 
-    const valueFormatter = function (number: number) {
-        return "$ " + new Intl.NumberFormat("us").format(number).toString();
-    };
-
     return (
         <Card>
             <Title>Account Balance Over Time</Title>
@@ -21,7 +18,7 @@ const BalanceChart: React.FC<{ results: SimulationResult }> = ({ results }) => {
                 className="h-72 mt-4"
                 data={data}
                 index="date"
-                yAxisWidth={80}
+                yAxisWidth={60}
                 categories={[results.balances[0].account_name]}
                 colors={["indigo"]}
                 valueFormatter={valueFormatter}

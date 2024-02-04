@@ -9,7 +9,6 @@ const capitalizeFirstLetter = (s: string): string => {
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const [_, subtitle, page] = location.pathname.split("/");
-  console.log(location.pathname.split("/"), subtitle, page);
   return (
     <div>
       <nav>

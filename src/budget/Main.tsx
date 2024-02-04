@@ -28,7 +28,6 @@ const Main: React.FC = () => {
       const startTime = performance.now();
 
       let j = await getResults(selectedScenario);
-
       let cf = await getCashFlowsFromConfig(selectedScenario);
 
       const endTime = performance.now();
@@ -66,13 +65,13 @@ const Main: React.FC = () => {
           run={budget}
         />
         {budgetResults && (
-          <div className="flex w-full flex-col gap-2">
-            <div className="flex w-full flex-grow flex-row gap-2">
+          <div className="flex w-full flex-row gap-2">
+            <div className="flex w-full flex-grow flex-col gap-2">
               <BalanceChart results={budgetResults} />
-              <CashFlowList cashFlows={cashFlows} />
-            </div>
-            <div className="flex w-full flex-grow flex-row gap-2">
               <CashFlowsChart results={budgetResults} />
+            </div>
+            <div className="flex flex-grow-0 w-[500px] flex-col gap-2">
+              <CashFlowList cashFlows={cashFlows} />
             </div>
           </div>
         )}

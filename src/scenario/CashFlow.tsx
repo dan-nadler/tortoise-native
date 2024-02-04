@@ -58,12 +58,10 @@ const CashFlowForm: React.FC = () => {
       cash_flows[i].tax_rate < 0 ||
       cash_flows[i].tax_rate > 1
     ) {
-      console.log("error!");
       setTaxError(true);
     } else {
       setTaxError(false);
     }
-    console.log(cash_flows[i]);
   }, [cash_flows[i].tax_rate]);
 
   return (

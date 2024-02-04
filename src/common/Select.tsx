@@ -70,6 +70,7 @@ const MySelect: React.FC<{
               color={"blue"}
               disabled={isRunning}
               variant="secondary"
+              loading={isRunning}
             >
               {runText ?? "Run"}
             </Button>

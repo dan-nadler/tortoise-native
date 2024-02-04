@@ -76,7 +76,7 @@ pub async fn get_results(
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let response = sim::run_simulation(account.unwrap(), portfolio, false, 1000);
+    let response = sim::run_simulation(account.unwrap(), portfolio, 100);
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());
@@ -100,8 +100,7 @@ pub async fn get_cash_flows_from_config(account_name: String) -> Result<Value, S
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let cf = serde_json::to_string(&account.unwrap().cash_flows).unwrap();
-    Ok(json!(cf))
+    Ok(json!(&account.unwrap().cash_flows))
 }
 
 #[tauri::command]
@@ -112,8 +111,7 @@ pub async fn get_account_config(account_name: String) -> Result<Value, String> {
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let a = serde_json::to_string(&account.unwrap()).unwrap();
-    Ok(json!(a))
+    Ok(json!(&account.unwrap()))
 }
 
 #[tauri::command]
