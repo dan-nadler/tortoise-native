@@ -10,7 +10,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-alpha", features = [] }
+tauri-build = { version = "2.0.0-beta", features = [] }
 
 [dependencies]
 chrono = {version = "0.4.31", features = ["serde"] }
@@ -21,7 +21,8 @@ xlsxwriter = "0.6.0"
 memoize = "0.4.2"
 rand_distr = { version = "0.4.3", features = ["serde"] }
 env_logger = "0.11.0"
-tauri = { version = "2.0.0-alpha", features = [] }
+tauri = { version = "2.0.0-beta", features = [] }
+tauri-plugin-shell = "2.0.0-beta"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9.27"
