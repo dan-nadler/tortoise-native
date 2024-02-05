@@ -85,6 +85,7 @@ const Chart: React.FC<ICashFlowChartData> = ({ data, categories, colors }) => {
         enableLegendSlider={true}
         showTooltip={true}
         showLegend={true}
+        showAnimation={true}
       />
     </Card>
   );

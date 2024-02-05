@@ -93,12 +93,8 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
         .abs() as usize;
     let num_accounts = scenario.accounts.len();
 
-    let mut balance_arr =
-        vec![ndarray::Array2::<f64>::zeros((num_days + 2, scenario.num_samples)); num_accounts];
-
-    let mut i = 0;
     while d <= scenario.end_date {
-        for (ai, invested_account) in scenario.accounts.iter().enumerate() {
+        for (invested_account) in scenario.accounts.iter() {
             let account = &invested_account.account;
             let portfolio = &invested_account.portfolio;
             let num_samples = &scenario.num_samples;
@@ -118,19 +114,11 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
                 bd = bd_post_investment;
             }
 
-            // Update the balance array
-            balance_arr[ai]
-                .slice_mut(ndarray::s![i + 1, ..])
-                .assign(&bd);
-
             // Update the results
             account_results.balances.push(AccountBalance::new(
                 d,
                 account.name.clone(),
-                balance_arr[ai]
-                    .slice_mut(ndarray::s![i, ..])
-                    .mean()
-                    .unwrap(),
+                bd.mean().unwrap(),
             ));
 
             // Get the cash flows for the day
@@ -140,7 +128,6 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
             }
 
             d = d.succ_opt().unwrap();
-            i += 1;
         }
     }
     Ok(results)
