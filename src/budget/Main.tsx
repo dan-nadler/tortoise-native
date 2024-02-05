@@ -45,7 +45,8 @@ const Main: React.FC = () => {
     try {
       const startTime = performance.now();
 
-      let j = await getResults(scenario);
+      let r = await getResults(scenario);
+      let j = r[scenario];
       let cf = await getCashFlowsFromConfig(scenario);
 
       const endTime = performance.now();

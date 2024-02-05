@@ -15,7 +15,7 @@ use ts_rs::TS;
 /// # Example
 ///
 /// ```
-/// use app_lib::sim::portfolio::Asset;
+/// use tortoise::sim::portfolio::Asset;
 ///
 /// let asset = Asset::new("Asset1".to_string(), 0.1, 0.05);
 /// ```
@@ -45,7 +45,7 @@ impl Asset {
 /// # Example
 ///
 /// ```
-/// use app_lib::sim::portfolio::{Asset, Portfolio};
+/// use tortoise::sim::portfolio::{Asset, Portfolio};
 ///
 /// let assets = vec![
 ///     Asset::new("Asset1".to_string(), 0.1, 0.05),
@@ -141,7 +141,7 @@ mod invest_tests {
 
     #[test]
     fn test_invest() {
-        let mut account = Account::new(
+        let account = Account::new(
             "test".to_string(),
             1000.0,
             vec![],
@@ -161,7 +161,7 @@ mod invest_tests {
 
     #[test]
     fn test_invest_two_assets() {
-        let mut account = Account::new(
+        let account = Account::new(
             "test".to_string(),
             1000.0,
             vec![],

@@ -2,4 +2,4 @@
 import type { Account } from "./Account";
 import type { Portfolio } from "./Portfolio";
 
-export interface InvestedAccount { account: Account, portfolio: Portfolio | null, num_samples: number, }
+export interface InvestedAccount { account: Account, portfolio: Portfolio | null, }

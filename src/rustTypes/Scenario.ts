@@ -2,4 +2,4 @@
 import type { InvestedAccount } from "./InvestedAccount";
 import type { Transfer } from "./Transfer";
 
-export interface Scenario { accounts: Array<InvestedAccount>, start_date: string, end_date: string, transfers: Array<Transfer>, }
+export interface Scenario { accounts: Array<InvestedAccount>, transfers: Array<Transfer>, start_date: string, end_date: string, num_samples: number, }

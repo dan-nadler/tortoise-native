@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use self::{cash::get_account_balance_at, portfolio::Invest};
 use crate::sim::cash::Frequency;
 use ndarray;
@@ -14,7 +16,6 @@ mod sample;
 pub struct InvestedAccount {
     pub account: cash::Account,
     pub portfolio: Option<portfolio::Portfolio>,
-    pub num_samples: usize,
 }
 
 #[derive(Serialize, Clone, TS)]
@@ -32,12 +33,13 @@ pub struct Transfer {
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct Scenario {
     pub accounts: Vec<InvestedAccount>,
+    pub transfers: Vec<Transfer>,
     pub start_date: chrono::NaiveDate,
     pub end_date: chrono::NaiveDate,
-    pub transfers: Vec<Transfer>,
+    pub num_samples: usize,
 }
 
-#[derive(Serialize, Clone, TS)]
+#[derive(Serialize, Clone, Debug, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct AccountBalance {
     pub date: chrono::NaiveDate,
@@ -55,7 +57,7 @@ impl AccountBalance {
     }
 }
 
-#[derive(Serialize, Clone, TS)]
+#[derive(Serialize, Clone, Debug, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct SimulationResult {
     pub balances: Vec<AccountBalance>,
@@ -63,65 +65,84 @@ pub struct SimulationResult {
 }
 
 impl SimulationResult {
-    pub fn new(balances: Vec<AccountBalance>, payments: Vec<cash::Payment>) -> SimulationResult {
-        SimulationResult { balances, payments }
+    pub fn new(
+        balances: Option<Vec<AccountBalance>>,
+        payments: Option<Vec<cash::Payment>>,
+    ) -> SimulationResult {
+        let b = balances.unwrap_or(vec![]);
+        let p = payments.unwrap_or(vec![]);
+        SimulationResult {
+            balances: b,
+            payments: p,
+        }
     }
 }
 
-pub fn run_simulation(mut scenario: Scenario) -> Result<SimulationResult, String> {
+pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationResult>, String> {
     let simulation_frequency = Frequency::BusinesDay;
-    let mut results = SimulationResult::new(vec![], vec![]);
-
-    let invested_account = scenario.accounts.pop().expect("No accounts in scenario.");
-    let account = invested_account.account;
-    let portfolio = invested_account.portfolio;
-    let num_samples = invested_account.num_samples;
-
-    let mut d = account.start_date;
-    let num_days = account
-        .end_date
-        .signed_duration_since(account.start_date)
-        .num_days()
-        .abs() as usize;
-    let mut balance_arr =
-        account.balance + ndarray::Array2::<f64>::zeros((num_days + 2, num_samples));
-
-    let mut i = 0;
-    while d <= account.end_date {
-        // Get account balance due to defined cash flows
-        let mut bd = get_account_balance_at(account.clone(), d, num_samples);
-
-        //
-        if portfolio.is_some() {
-            let bd_post_investment = account.invest(
-                &bd,
-                &portfolio.as_ref().unwrap(),
-                &num_samples,
-                &simulation_frequency,
-            );
-            bd = bd_post_investment;
-        }
-
-        let new_bal = &bd;
-        balance_arr
-            .slice_mut(ndarray::s![i + 1, ..])
-            .assign(&new_bal);
-
-        results.balances.push(AccountBalance::new(
-            d,
-            account.name.clone(),
-            balance_arr.slice_mut(ndarray::s![i, ..]).mean().unwrap(),
-        ));
-
-        let flows = account.flows_at(d);
-        for f in &flows {
-            results.payments.push(f.clone());
-        }
-
-        d = d.succ_opt().unwrap();
-        i += 1;
+    let mut results = HashMap::new();
+    for a in &scenario.accounts {
+        results.insert(a.account.name.clone(), SimulationResult::new(None, None));
     }
 
+    let mut d = scenario.start_date;
+    let num_days = scenario
+        .end_date
+        .signed_duration_since(scenario.start_date)
+        .num_days()
+        .abs() as usize;
+    let num_accounts = scenario.accounts.len();
+
+    let mut balance_arr =
+        vec![ndarray::Array2::<f64>::zeros((num_days + 2, scenario.num_samples)); num_accounts];
+
+    let mut i = 0;
+    while d <= scenario.end_date {
+        for (ai, invested_account) in scenario.accounts.iter().enumerate() {
+            let account = &invested_account.account;
+            let portfolio = &invested_account.portfolio;
+            let num_samples = &scenario.num_samples;
+            let account_results = results.get_mut(&account.name).unwrap();
+
+            // Get account balance due to defined cash flows
+            let mut bd = get_account_balance_at(account.clone(), d, *num_samples);
+
+            // Invest the account if a portfolio is defined
+            if portfolio.is_some() {
+                let bd_post_investment = account.invest(
+                    &bd,
+                    portfolio.as_ref().unwrap(),
+                    num_samples,
+                    &simulation_frequency,
+                );
+                bd = bd_post_investment;
+            }
+
+            // Update the balance array
+            balance_arr[ai]
+                .slice_mut(ndarray::s![i + 1, ..])
+                .assign(&bd);
+
+            // Update the results
+            account_results.balances.push(AccountBalance::new(
+                d,
+                account.name.clone(),
+                balance_arr[ai]
+                    .slice_mut(ndarray::s![i, ..])
+                    .mean()
+                    .unwrap(),
+            ));
+
+            // Get the cash flows for the day
+            let flows = account.flows_at(d);
+            for f in &flows {
+                account_results.payments.push(f.clone());
+            }
+
+            d = d.succ_opt().unwrap();
+            i += 1;
+        }
+    }
     Ok(results)
 }
 
@@ -138,16 +159,15 @@ fn test_run_simulation() {
         accounts: vec![InvestedAccount {
             account: account,
             portfolio: None,
-            num_samples: 1,
         }],
-        start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        end_date: chrono::NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+        start_date: chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+        end_date: chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),
         transfers: vec![],
+        num_samples: 1,
     };
 
     let _r = run_simulation(scenario).unwrap();
 }
-
 
 #[test]
 fn test_run_simulation_with_transfer() {
@@ -178,19 +198,18 @@ fn test_run_simulation_with_transfer() {
             InvestedAccount {
                 account: account1,
                 portfolio: None,
-                num_samples: 1,
             },
             InvestedAccount {
                 account: account2,
                 portfolio: None,
-                num_samples: 1,
             },
         ],
         transfers: vec![transfer],
         start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
         end_date: chrono::NaiveDate::from_ymd_opt(2020, 2, 1).unwrap(),
+        num_samples: 1,
     };
-    let r = run_simulation(scenario).unwrap();
-    
+    run_simulation(scenario).unwrap();
+
     // TODO: Check that the transfer happened
 }
