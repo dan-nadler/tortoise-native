@@ -76,7 +76,18 @@ pub async fn get_results(
         return Err("{\"error\": \"Error loading account\"}".to_string());
     }
 
-    let response = sim::run_simulation(account.unwrap(), portfolio, 100);
+    let scenario = sim::Scenario {
+        accounts: vec![sim::InvestedAccount {
+            account: account.unwrap(),
+            portfolio,
+            num_samples: 1,
+        }],
+        start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+        end_date: chrono::NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+        transfers: vec![],
+    };
+
+    let response = sim::run_simulation(scenario);
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());

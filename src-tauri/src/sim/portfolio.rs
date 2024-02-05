@@ -80,7 +80,7 @@ fn date_sequence(start: chrono::NaiveDate, end: chrono::NaiveDate) -> Vec<chrono
 
 pub trait Invest {
     fn invest(
-        &mut self,
+        &self,
         starting_balance: &Array1<f64>,
         portfolio: &Portfolio,
         nsamples: &usize,
@@ -88,7 +88,7 @@ pub trait Invest {
     ) -> Array1<f64>;
 
     fn invest_asset(
-        &mut self,
+        &self,
         asset: &Asset,
         weight: &f64,
         nsamples: &usize,
@@ -100,7 +100,7 @@ impl Invest for Account {
     // computes and returns the vectorized value of the account after investing in the portfolio for a single period.
     // If the mean return and std are annual, then the period is a year.
     fn invest(
-        &mut self,
+        &self,
         starting_balance: &Array1<f64>,
         portfolio: &Portfolio,
         nsamples: &usize,
@@ -119,7 +119,7 @@ impl Invest for Account {
     }
 
     fn invest_asset(
-        &mut self,
+        &self,
         asset: &Asset,
         weight: &f64,
         nsamples: &usize,

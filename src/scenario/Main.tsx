@@ -153,6 +153,8 @@ const CashFlowCard: React.FC<{
 
 const CashFlowCards: React.FC = () => {
   const { cash_flows, addCashFlow, name } = useAccountStore();
+  const navigate = useNavigate();
+
   return (
     <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
       {cash_flows.map((item, i) => (
@@ -173,6 +175,7 @@ const CashFlowCards: React.FC = () => {
             end_date: null,
             tags: [],
           });
+          navigate(`/scenario/${name}/${cash_flows.length}`);
         }}
       >
         <div className="m-auto flex h-full flex-row items-center">
