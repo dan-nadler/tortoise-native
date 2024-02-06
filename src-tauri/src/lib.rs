@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use tauri::menu::{Menu, PredefinedMenuItem, Submenu};
+
 pub mod api;
 pub mod io;
 pub mod sim;
@@ -24,45 +26,31 @@ fn test_startup_tasks() {
 pub fn run() {
     startup_tasks();
 
-    let m = |handle: &_| {
-        let menu = tauri::menu::Menu::with_items(
-            handle,
-            &[
-                &tauri::menu::Submenu::with_items(
-                    handle,
-                    "File",
-                    true,
-                    &[&tauri::menu::PredefinedMenuItem::quit(
+    tauri::Builder::default()
+        .menu(|handle| {
+            Menu::with_items(
+                handle,
+                &[
+                    #[cfg(target_os = "macos")]
+                    &Submenu::with_items(
                         handle,
-                        "Quit".into(),
-                    )],
-                )?,
-                &tauri::menu::Submenu::with_items(
-                    handle,
-                    "Scenario",
-                    true,
-                    &[
-                        // TODO: Implement menu items
-                        // &tauri::menu::MenuItem::new(handle, "Edit", true, "CmdOrCtrl+E".into()),
-                        // &tauri::menu::MenuItem::new(handle, "Save", true, "CmdOrCtrl+S".into()),
-                        // &tauri::menu::MenuItem::new(handle, "New", true, "CmdOrCtrl+N".into()),
-                        // &tauri::menu::MenuItem::new(handle, "Close", true, "CmdOrCtrl+W".into()),
-                    ],
-                )?,
-            ],
-        );
-        return menu;
-    };
-
-    let t = tauri::Builder::default()
-        .menu(m)
-        .setup(|app| {
-            let handle = app.handle();
-            // TODO: Implement menu handlers
-            // handle.on_menu_event(|x, y| {
-            //     println!("{:?}\n{:?}", x, y);
-            // });
-            Ok(())
+                        "The Tortoise",
+                        true,
+                        &[&PredefinedMenuItem::quit(handle, None)?],
+                    )?,
+                    &Submenu::with_items(
+                        handle,
+                        "File",
+                        true,
+                        &[
+                            &PredefinedMenuItem::separator(handle)?,
+                            &PredefinedMenuItem::close_window(handle, None)?,
+                            #[cfg(target_os = "windows")]
+                            &PredefinedMenuItem::quit(handle, None)?,
+                        ],
+                    )?,
+                ],
+            )
         })
         .invoke_handler(tauri::generate_handler![
             api::get_results,

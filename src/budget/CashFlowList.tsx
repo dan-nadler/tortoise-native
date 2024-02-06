@@ -1,9 +1,7 @@
 import React from "react";
 import { Card, Title, Text, DeltaBar, Flex, CardProps } from "@tremor/react";
 import { CashFlow } from "../rustTypes/CashFlow";
-
-const valueFormatter = (number: number) =>
-  `${Math.sign(number) < 0 ? "-" : ""}\$${Intl.NumberFormat("us").format(Math.abs(number)).toString()}`;
+import { valueFormatter } from "../common/ValueFormatter";
 
 interface CashFlowListProps extends CardProps {
   cashFlows: CashFlow[];

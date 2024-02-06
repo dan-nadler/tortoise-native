@@ -1,16 +1,25 @@
 const stringFormatter = (number: number) => {
-  return "$ " + new Intl.NumberFormat("us").format(number).toString();
+  const rounded = Math.round(number);
+  return "$" + new Intl.NumberFormat("us").format(rounded).toString();
 };
 
-export const valueFormatter = (number: number) => {
+// Replaces the dollar amount with Xs. For example, $1,000 becomes $X,XXX
+// and $1,000,000 becomes $X,XXX,XXX
+const anonymizeFormatter = (number: number) => {
+  return stringFormatter(number).replace(/\d/g, "X");
+}
+
+export const valueFormatter = (number: number, anon: boolean = false) => {
+  let fmt = anon ? anonymizeFormatter : stringFormatter;
+
   const num = Math.abs(number);
-  if (num < 10_000) {
-    return stringFormatter(num);
-  } else if (num < 10_000_000) {
-    return stringFormatter(num / 1_000) + "K";
-  } else if (num < 10_000_000_000) {
-    return stringFormatter(num / 1_000_000) + "M";
+  if (num < 1_000) {
+    return fmt(num);
+  } else if (num < 1_000_000) {
+    return fmt(num / 1_000) + " K";
+  } else if (num < 1_000_000_000) {
+    return fmt(num / 1_000_000) + " M";
   } else {
-    return stringFormatter(num / 10_000_000_000) + "B";
+    return fmt(num / 1_000_000_000) + " B";
   }
 };

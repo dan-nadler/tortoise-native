@@ -8,10 +8,6 @@ This is an expansion and port of https://thetortoise.io into a native applicatio
 
 This is currently under development and not ready for general use.
 
-That said, if you'd like to play with it, you can add a scenario by creating a `~/.tortoise` directory and adding an account `yaml` file. 
-The json schema for this file at [src-tauri/src/schemas/.account.json](src-tauri/src/schemas/.account.json). This will allow you to 
-do simple budget forecasting by defining recurring or one-time cashflows into and out of an account.
-
 ## Roadmap
 - [x] ~Define portfolios to use with accounts~ ✅
 - [ ] Basic portfolio management and investment forecasts
@@ -21,10 +17,11 @@ do simple budget forecasting by defining recurring or one-time cashflows into an
 - [ ] Monte carlo forecasting
     - [x] ~Vectorize the budget and investment algorithms~ ✅
     - [ ] Return and display distribution information
-- [ ] Create and edit scenanrios via the UI
-- [ ] Simple version control for scenarios
+- [x] Create and edit scenanrios via the UI ✅
+- [x] Simple version control for scenarios
     - [ ] Track budgets and goals over time
     - [ ] Revert to previous versions
+- [ ] Support multiple accounts with scheduled transfers
 
 # Created with Tauri + React + Typescript
 ## Recommended IDE Setup

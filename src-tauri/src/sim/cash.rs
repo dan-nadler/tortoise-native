@@ -27,6 +27,7 @@ pub const DAYS_IN_MONTH: [u32; 12] = [
 #[ts(export, export_to = "../src/rustTypes/")]
 pub enum Frequency {
     Once,
+    BusinesDay,
     MonthStart,
     MonthEnd,
     SemiMonthly,
@@ -37,6 +38,7 @@ impl Frequency {
     pub fn fraction(&self) -> f64 {
         match self {
             Frequency::Once => 1.0,
+            Frequency::BusinesDay => 1.0 / 252.0,
             Frequency::MonthStart => 1.0 / 12.0,
             Frequency::MonthEnd => 1.0 / 12.0,
             Frequency::SemiMonthly => 1.0 / 24.0,
@@ -67,6 +69,11 @@ impl Frequency {
                     if start_date != d {
                         return false;
                     }
+                }
+            }
+            Frequency::BusinesDay => {
+                if d.weekday().number_from_monday() > 5 {
+                    return false;
                 }
             }
             Frequency::MonthStart => {
@@ -155,7 +162,7 @@ impl CashFlow {
     }
 
     pub fn payments(
-        &mut self,
+        &self,
         start_date: chrono::NaiveDate,
         end_date: chrono::NaiveDate,
         tax_payments: bool,
@@ -267,13 +274,13 @@ impl Account {
         balance
     }
 
-    pub fn flows_at(&mut self, date: chrono::NaiveDate) -> Vec<Payment> {
+    pub fn flows_at(&self, date: chrono::NaiveDate) -> Vec<Payment> {
         // Returns a vec of Payment objects corresponding to all flows on this date
         let mut flows: Vec<Payment> = vec![];
-        for cash_flow in &mut self.cash_flows {
-            let payments = &mut cash_flow.payments(date, date, false);
-            let taxes = &mut cash_flow.payments(date, date, true);
-            for payment in payments.iter_mut().chain(taxes) {
+        for cash_flow in &self.cash_flows {
+            let payments = &cash_flow.payments(date, date, false);
+            let taxes = &cash_flow.payments(date, date, true);
+            for payment in payments.iter().chain(taxes) {
                 flows.push(payment.clone());
             }
         }
@@ -347,19 +354,16 @@ pub fn get_account_balance_at(
     date: chrono::NaiveDate,
     num_samples: usize,
 ) -> Array1<f64> {
-    let mut a = account.clone();
-    let f = a.flows_at(date).iter().fold(0.0, |acc, x| acc + x.amount);
-    #[allow(unused_assignments)]
-    let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples);
-
-    // TODO: refactor into a while loop without recursion to avoid stack overflow on very long simulations
-    // or else reimplement memoize with proper a proper cache key.
-    if date > a.start_date {
-        b = get_account_balance_at(a, date - chrono::Duration::days(1), num_samples);
-    } else {
-        b = Array1::<f64>::zeros(num_samples) + a.balance; // starting balance
+    let a = account.clone();
+    let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples) + a.balance;
+    let mut d = a.start_date;
+    
+    while d <= date {
+        b += a.flows_at(d).iter().fold(0.0, |acc, x| acc + x.amount);
+        d = d.succ_opt().unwrap();
     }
-    b + f
+
+    return b;
 }
 
 #[test]

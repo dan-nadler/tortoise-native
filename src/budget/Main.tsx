@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 import BalanceChart, {
   IBalanceData,
@@ -13,8 +13,6 @@ import { CashFlow } from "../rustTypes/CashFlow";
 import { getResults } from "../api/sim";
 import { getCashFlowsFromConfig, listAccounts } from "../api/account";
 import { Button } from "@tremor/react";
-import { useAccountStore } from "../store/Account";
-import { navContext } from "../common/NavProvider";
 import { useSelectedScenarioStore } from "../common/Select";
 
 // The cash flow chart has performance issues with the number of items that can be
@@ -38,14 +36,14 @@ const Main: React.FC = () => {
   const [cashFlows, setCashFlows] = useState<CashFlow[]>([]);
   const [_, setAvailableScenarios] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const { name } = useAccountStore();
 
   async function budget(scenario: string) {
     setIsRunning(true);
     try {
       const startTime = performance.now();
 
-      let j = await getResults(scenario);
+      let r = await getResults(scenario);
+      let j = r[scenario];
       let cf = await getCashFlowsFromConfig(scenario);
 
       const endTime = performance.now();
@@ -86,50 +84,42 @@ const Main: React.FC = () => {
     if (selectedScenario) budget(selectedScenario);
   }, [selectedScenario]);
 
-  const { setAuxButtons } = useContext(navContext);
-  useEffect(() => {
-    setAuxButtons &&
-      setAuxButtons(
-        <Button
-          variant={"secondary"}
-          color="gray"
-          loading={isRunning}
-          disabled={!name}
-          onClick={() => budget(name)}
-        >
-          {name ? "Run Budget" : "Select a Scenario"}
-        </Button>,
-      );
-    return () => {
-      setAuxButtons && setAuxButtons(null);
-    };
-  });
-
   return (
     <div>
-      {/* <div className="flex flex-col gap-2 max-h-[500px]"> */}
-      {budgetResults && (
-        <div className="flex flex-row flex-wrap gap-2">
-          <div className="flex flex-col gap-2 md:w-full lg:w-[75%]">
-            {balanceChartData && (
-              <BalanceChart
-                data={balanceChartData.data}
-                categories={balanceChartData.categories}
-              />
-            )}
-            {cashFlowsChartData && (
-              <MemoCashFlowChart
-                data={cashFlowsChartData.data}
-                categories={cashFlowsChartData.categories}
-                colors={cashFlowsChartData.colors}
-              />
-            )}
-          </div>
-          <div className="flex-grow">
-            <CashFlowList cashFlows={cashFlows} className="" />
-          </div>
+      <div
+        className={`flex w-full flex-row justify-center ${!isRunning ? "hidden" : ""}`}
+      >
+        <Button
+          size="xl"
+          loading={isRunning}
+          loadingText="Simulation Running"
+          variant="secondary"
+        >
+          Simulation Running
+        </Button>
+      </div>
+      <div
+        className={`flex flex-row flex-wrap gap-2 ${budgetResults && !isRunning ? "" : "hidden"}`}
+      >
+        <div className="flex flex-col gap-2 md:w-full lg:w-[75%]">
+          {balanceChartData && (
+            <BalanceChart
+              data={balanceChartData.data}
+              categories={balanceChartData.categories}
+            />
+          )}
+          {cashFlowsChartData && (
+            <MemoCashFlowChart
+              data={cashFlowsChartData.data}
+              categories={cashFlowsChartData.categories}
+              colors={cashFlowsChartData.colors}
+            />
+          )}
         </div>
-      )}
+        <div className="flex-grow">
+          <CashFlowList cashFlows={cashFlows} className="" />
+        </div>
+      </div>
     </div>
   );
 };

@@ -15,7 +15,7 @@ use ts_rs::TS;
 /// # Example
 ///
 /// ```
-/// use app_lib::sim::portfolio::Asset;
+/// use tortoise::sim::portfolio::Asset;
 ///
 /// let asset = Asset::new("Asset1".to_string(), 0.1, 0.05);
 /// ```
@@ -45,7 +45,7 @@ impl Asset {
 /// # Example
 ///
 /// ```
-/// use app_lib::sim::portfolio::{Asset, Portfolio};
+/// use tortoise::sim::portfolio::{Asset, Portfolio};
 ///
 /// let assets = vec![
 ///     Asset::new("Asset1".to_string(), 0.1, 0.05),
@@ -80,7 +80,7 @@ fn date_sequence(start: chrono::NaiveDate, end: chrono::NaiveDate) -> Vec<chrono
 
 pub trait Invest {
     fn invest(
-        &mut self,
+        &self,
         starting_balance: &Array1<f64>,
         portfolio: &Portfolio,
         nsamples: &usize,
@@ -88,7 +88,7 @@ pub trait Invest {
     ) -> Array1<f64>;
 
     fn invest_asset(
-        &mut self,
+        &self,
         asset: &Asset,
         weight: &f64,
         nsamples: &usize,
@@ -100,7 +100,7 @@ impl Invest for Account {
     // computes and returns the vectorized value of the account after investing in the portfolio for a single period.
     // If the mean return and std are annual, then the period is a year.
     fn invest(
-        &mut self,
+        &self,
         starting_balance: &Array1<f64>,
         portfolio: &Portfolio,
         nsamples: &usize,
@@ -119,7 +119,7 @@ impl Invest for Account {
     }
 
     fn invest_asset(
-        &mut self,
+        &self,
         asset: &Asset,
         weight: &f64,
         nsamples: &usize,
@@ -141,7 +141,7 @@ mod invest_tests {
 
     #[test]
     fn test_invest() {
-        let mut account = Account::new(
+        let account = Account::new(
             "test".to_string(),
             1000.0,
             vec![],
@@ -161,7 +161,7 @@ mod invest_tests {
 
     #[test]
     fn test_invest_two_assets() {
-        let mut account = Account::new(
+        let account = Account::new(
             "test".to_string(),
             1000.0,
             vec![],
