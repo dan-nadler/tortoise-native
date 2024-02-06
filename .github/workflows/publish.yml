@@ -37,7 +37,7 @@ jobs:
         run: npm install # change this to npm or pnpm depending on which one you use
 
       - name: Build Universal Mac App
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -84,7 +84,7 @@ jobs:
         run: npm install # change this to npm or pnpm depending on which one you use
 
       - name: Build Windows
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
