@@ -7,7 +7,7 @@ on:
       - release
 
 jobs:
-  publish-mac-aarch64:
+  publish-mac-universal:
     permissions:
       contents: write
     strategy:
