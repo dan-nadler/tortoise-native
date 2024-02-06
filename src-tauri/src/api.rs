@@ -83,8 +83,8 @@ pub async fn get_results(
             account: acc.clone(),
             portfolio,
         }],
-        start_date: acc.clone().start_date,
-        end_date: acc.clone().end_date,
+        start_date: acc.start_date.clone(),
+        end_date: acc.end_date.clone(),
         transfers: vec![],
         num_samples: 1,
     };
