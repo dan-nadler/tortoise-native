@@ -1,9 +1,7 @@
-use std::collections::HashMap;
-
-use self::{cash::get_account_balance_at, portfolio::Invest};
-use crate::sim::cash::Frequency;
-use ndarray;
+use crate::sim::cash::{get_account_balance_at, Frequency};
+use crate::sim::portfolio::Invest;
 use serde::Serialize;
+use std::collections::HashMap;
 use ts_rs::TS;
 pub mod cash;
 pub mod examples;
@@ -86,15 +84,8 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
     }
 
     let mut d = scenario.start_date;
-    let num_days = scenario
-        .end_date
-        .signed_duration_since(scenario.start_date)
-        .num_days()
-        .abs() as usize;
-    let num_accounts = scenario.accounts.len();
-
     while d <= scenario.end_date {
-        for (invested_account) in scenario.accounts.iter() {
+        for invested_account in scenario.accounts.iter() {
             let account = &invested_account.account;
             let portfolio = &invested_account.portfolio;
             let num_samples = &scenario.num_samples;
