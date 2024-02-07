@@ -1,5 +1,5 @@
 {
-  "productName": "The Tortoise",
+  "productName": "tortoise-native",
   "version": "0.7.0",
   "identifier": "io.thetortoise.dev",
   "build": {
