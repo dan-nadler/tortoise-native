@@ -114,7 +114,7 @@ const CashFlowForm: React.FC = () => {
               <div className="flex-grow">
                 <Text>Frequency</Text>
                 <Select
-                  defaultValue="Annually"
+                  value={cash_flows[i].frequency ?? "MonthStart"}
                   onValueChange={(e) => setCashFlowFrequency(i, e as Frequency)}
                 >
                   <SelectItem value="Once">Once</SelectItem>
