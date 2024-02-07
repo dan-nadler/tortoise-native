@@ -1,6 +1,6 @@
 {
   "productName": "tortoise-native",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "identifier": "io.thetortoise.dev",
   "build": {
     "beforeBuildCommand": "npm run build",
