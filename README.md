@@ -27,3 +27,6 @@ This is currently under development and not ready for general use.
 ## Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+
+# Attribution
+<a href="https://www.flaticon.com/free-icons/turtle" title="turtle icons">Turtle icons created by Freepik - Flaticon</a>
