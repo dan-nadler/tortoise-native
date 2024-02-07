@@ -10,7 +10,7 @@ const anonymizeFormatter = (number: number) => {
 }
 
 export const valueFormatter = (number: number, anon: boolean = false) => {
-  let fmt = anon === true ? anonymizeFormatter : stringFormatter;
+  let fmt = anon ? anonymizeFormatter : stringFormatter;
 
   const num = Math.abs(number);
   if (num < 1_000) {
