@@ -7,7 +7,7 @@ on:
       - release
 
 jobs:
-  publish-mac-universal:
+  publish-apple-silicon:
     permissions:
       contents: write
     strategy:
