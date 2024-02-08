@@ -1,8 +1,8 @@
 import React from "react";
 import { BarChart, Card, Title } from "@tremor/react";
-import { SimulationResult } from "../rustTypes/SimulationResult";
-import { Payment } from "../rustTypes/Payment";
-import { valueFormatter } from "../common/ValueFormatter";
+import { SimulationResult } from "../../rustTypes/SimulationResult";
+import { Payment } from "../../rustTypes/Payment";
+import { valueFormatter } from "../../common/ValueFormatter";
 
 export const formatResultsForCashFlowChart = (results: SimulationResult) => {
   const cashFlowNames: string[] = results.payments.map(

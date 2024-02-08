@@ -7,12 +7,12 @@ import {
   Divider,
 } from "@tremor/react";
 import React, { useEffect } from "react";
-import { useAccountStore } from "../store/Account";
+import { useAccountStore } from "../../store/Account";
 import { useParams, useNavigate } from "react-router-dom";
-import MyNumberInput from "../common/NumberInput";
+import MyNumberInput from "../../common/NumberInput";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import MyTagsInput from "../common/TagsInput";
-import { Frequency } from "../rustTypes/Frequency";
+import MyTagsInput from "../../common/TagsInput";
+import { Frequency } from "../../rustTypes/Frequency";
 
 const CashFlowForm: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const CashFlowForm: React.FC = () => {
         className="h-min-dvh m-auto mt-10 flex max-w-[800px] flex-col justify-start gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          navigate("/scenario");
+          navigate("/account");
         }}
       >
         <div className="flex w-full flex-col gap-2">
@@ -81,7 +81,7 @@ const CashFlowForm: React.FC = () => {
               icon={ArrowLeftIcon}
               type="reset"
               variant="light"
-              onClick={() => navigate(`/scenario`)}
+              onClick={() => navigate(`/account`)}
             >
               Back
             </Button>
@@ -175,7 +175,7 @@ const CashFlowForm: React.FC = () => {
         </Button>
         <Button type="button" color="red" onClick={() => {
           removeCashFlowIndex(i);
-          navigate("/scenario");
+          navigate("/account");
         }}>
           Delete
         </Button>

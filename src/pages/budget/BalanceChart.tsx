@@ -1,7 +1,7 @@
 import React from "react";
 import { AreaChart, Card, Title } from "@tremor/react";
-import { valueFormatter } from "../common/ValueFormatter";
-import { SimulationResult } from "../rustTypes/SimulationResult";
+import { valueFormatter } from "../../common/ValueFormatter";
+import { SimulationResult } from "../../rustTypes/SimulationResult";
 
 export type BalanceData = {
   [x: string]: string | number;

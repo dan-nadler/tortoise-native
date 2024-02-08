@@ -1,5 +1,5 @@
 import { Button, Divider, Title } from "@tremor/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeftIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { useAccountStore } from "./store/Account";
@@ -19,7 +19,8 @@ const NavButton: React.FC = () => {
   const previousRootName =
     previousRoot && capitalizeFirstLetter(previousRoot?.split("/")[1]);
 
-  if (location.pathname.toLowerCase().includes("scenario")) {
+  // TODO: this 'navigate back' functionality is not working
+  if (location.pathname.toLowerCase().includes("account")) {
     if (previousRoot && previousRootName) {
       return (
         <Button
@@ -47,7 +48,7 @@ const NavButton: React.FC = () => {
             navigate("/");
           }}
         >
-          Budget
+          Forecast
         </Button>
       );
     }
@@ -62,7 +63,7 @@ const NavButton: React.FC = () => {
           navigate(`/scenario/${state.name}`);
         }}
       >
-        Edit Scenario
+        Edit Account
       </Button>
     );
   }
@@ -71,7 +72,8 @@ const NavButton: React.FC = () => {
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const [auxButtons, setAuxButtons] = useState<React.ReactNode>(null);
-  const [_, subtitle, ...pages] = location.pathname.split("/");
+  const [_, ...pages] = location.pathname.split("/");
+  let titleClass = "font-light hover:opacity-80 active:opacity-70";
 
   return (
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
@@ -79,27 +81,26 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <nav className="flex flex-row justify-between">
           <div className="flex flex-row">
             <ul className="flex items-center space-x-2">
-              <li>
-                <Link to={"/"}>
-                  <Title className="font-light hover:opacity-80 active:opacity-70">
-                    Budget
-                  </Title>
+              <li key="home">
+                <Link to="/">
+                  <Title className={titleClass}>Home</Title>
                 </Link>
               </li>
-              {subtitle && <Title className="font-light">//</Title>}
-              <li>
-                {pages ? (
-                  <Link to={`/${subtitle}`}>
-                    <Title className="font-light hover:opacity-80 active:opacity-70">
-                      {subtitle && capitalizeFirstLetter(subtitle)}
-                    </Title>
-                  </Link>
-                ) : (
-                  <Title className="font-light">
-                    {subtitle && capitalizeFirstLetter(subtitle)}
-                  </Title>
-                )}
-              </li>
+              {pages.map((p, i) => {
+                if (!p) return null;
+                return (
+                  <>
+                    <Title>//</Title>
+                    <li key={i}>
+                      <Link to={"/" + pages.slice(0, i + 1).join("/")}>
+                        <Title className={titleClass}>
+                          {capitalizeFirstLetter(p)}
+                        </Title>
+                      </Link>
+                    </li>
+                  </>
+                );
+              })}
             </ul>
           </div>
           <AccountSelect

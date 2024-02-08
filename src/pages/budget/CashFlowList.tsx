@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Title, Text, DeltaBar, Flex, CardProps } from "@tremor/react";
-import { CashFlow } from "../rustTypes/CashFlow";
-import { valueFormatter } from "../common/ValueFormatter";
+import { CashFlow } from "../../rustTypes/CashFlow";
+import { valueFormatter } from "../../common/ValueFormatter";
 
 interface CashFlowListProps extends CardProps {
   cashFlows: CashFlow[];

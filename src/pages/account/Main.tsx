@@ -13,12 +13,13 @@ import {
   Icon,
   NumberInput,
 } from "@tremor/react";
-import { useAccountStore } from "../store/Account";
-import { CashFlow } from "../rustTypes/CashFlow";
+import { useAccountStore } from "../../store/Account";
+import { CashFlow } from "../../rustTypes/CashFlow";
 import { useNavigate, useParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, listAccounts } from "../api/account";
-import { navContext } from "../common/NavProvider";
+import { getAccount, listAccounts } from "../../api/account";
+import { navContext } from "../../common/NavProvider";
+import Tag from "../../common/Tag";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -103,7 +104,7 @@ const CashFlowCard: React.FC<{
       hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
       color="neutral"
-      onClick={() => navigate(`/scenario/${scenarioName}/${i}`)}
+      onClick={() => navigate(`/account/${scenarioName}/${i}`)}
     >
       <Flex
         justifyContent="between"
@@ -145,7 +146,7 @@ const CashFlowCard: React.FC<{
         alignItems="end"
         className="flex-grow gap-2"
       >
-        {item.tags?.map((tag, i) => <Badge key={i}>{tag}</Badge>)}
+        {item.tags?.map((tag, i) => <Tag key={i} tag={tag}/>)}
       </Flex>
     </Card>
   );
@@ -175,7 +176,7 @@ const CashFlowCards: React.FC = () => {
             end_date: null,
             tags: [],
           });
-          navigate(`/scenario/${name}/${cash_flows.length}`);
+          navigate(`/account/${name}/${cash_flows.length}`);
         }}
       >
         <div className="m-auto flex h-full flex-row items-center">

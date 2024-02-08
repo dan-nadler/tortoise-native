@@ -1,8 +1,7 @@
 use crate::sim::cash::Account;
 use std::ffi::OsStr;
-use std::fs;
+use std::fs; // TODO: replace with Tauri's FS or another store
 use std::path::PathBuf;
-
 
 fn save_dir() -> PathBuf {
     dirs::config_dir()
@@ -40,13 +39,22 @@ pub fn get_or_create_accounts_save_dir() -> PathBuf {
     }
 }
 
+/// Generates a timestamp-based version string.
+///
+/// This function uses the current local time to generate a version string in the format
+/// "YYYYMMDD_HHMMSS". The version string can be used to uniquely identify a specific version
+/// of an account file.
 fn get_next_version() -> String {
+    
     let now = chrono::Local::now();
     let version = now.format("%Y%m%d_%H%M%S").to_string();
     version
 }
 
 pub fn write_account_file(account: &Account) {
+    // TODO: This results in a lot of config files being created. We should probably
+    // cull older files so that the X most recent are kept, followed by Y daily, and
+    // Z monthly, etc.
     let dir = get_or_create_accounts_save_dir();
     let fsn = &account.fs_name().clone();
 

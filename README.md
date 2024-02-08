@@ -4,7 +4,7 @@ This is an expansion and port of https://thetortoise.io into a native applicatio
 
 ![The Tortoise (Native)](https://github.com/Tortoise-Technologies/tortoise-native/blob/main/assets/WIP%20Screenshot.png?raw=true)
 
-![The Tortoise (Native)](https://github.com/Tortoise-Technologies/tortoise-native/blob/main/assets/Scenario%20Creation.png?raw=true)
+![The Tortoise (Native)](https://github.com/Tortoise-Technologies/tortoise-native/blob/main/assets/account%20Creation.png?raw=true)
 
 This is currently under development and not ready for general use.
 
@@ -17,8 +17,8 @@ This is currently under development and not ready for general use.
 - [ ] Monte carlo forecasting
     - [x] ~Vectorize the budget and investment algorithms~ ✅
     - [ ] Return and display distribution information
-- [x] Create and edit scenanrios via the UI ✅
-- [x] Simple version control for scenarios
+- [x] ~Create and edit scenanrios via the UI~ ✅
+- [x] ~Simple version control for scenarios~ ✅
     - [ ] Track budgets and goals over time
     - [ ] Revert to previous versions
 - [ ] Support multiple accounts with scheduled transfers

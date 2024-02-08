@@ -124,70 +124,52 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
     Ok(results)
 }
 
-#[test]
-fn test_run_simulation() {
-    let dir = dirs::home_dir()
-        .unwrap()
-        .join(".tortoise")
-        .join("default_account.yaml");
-    let config = std::fs::read_to_string(dir.to_str().unwrap()).unwrap();
-    let account: cash::Account = serde_yaml::from_str(&config).unwrap();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let scenario = Scenario {
-        accounts: vec![InvestedAccount {
-            account: account,
-            portfolio: None,
-        }],
-        start_date: chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
-        end_date: chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),
-        transfers: vec![],
-        num_samples: 1,
-    };
+    #[test]
+    fn test_run_simulation() {
+        let account: cash::Account = crate::sim::examples::simple_account::simple_account();
 
-    let _r = run_simulation(scenario).unwrap();
-}
-
-#[test]
-fn test_run_simulation_with_transfer() {
-    let account1 = cash::Account {
-        name: "Account 1".to_string(),
-        balance: 1000.0,
-        cash_flows: vec![],
-        start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        end_date: chrono::NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
-    };
-    let account2 = cash::Account {
-        name: "Account 2".to_string(),
-        balance: 0.0,
-        cash_flows: vec![],
-        start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        end_date: chrono::NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
-    };
-    let transfer = Transfer {
-        from: "Account 1".to_string(),
-        to: "Account 2".to_string(),
-        frequency: Frequency::MonthStart,
-        start_date: None,
-        end_date: None,
-        amount: 100.0,
-    };
-    let scenario = Scenario {
-        accounts: vec![
-            InvestedAccount {
-                account: account1,
+        let scenario = Scenario {
+            accounts: vec![InvestedAccount {
+                account: account,
                 portfolio: None,
-            },
-            InvestedAccount {
-                account: account2,
-                portfolio: None,
-            },
-        ],
-        transfers: vec![transfer],
-        start_date: chrono::NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-        end_date: chrono::NaiveDate::from_ymd_opt(2020, 2, 1).unwrap(),
-        num_samples: 1,
-    };
-    run_simulation(scenario).unwrap();
+            }],
+            start_date: chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+            end_date: chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),
+            transfers: vec![],
+            num_samples: 1,
+        };
 
-    // TODO: Check that the transfer happened
+        let _r = run_simulation(scenario).unwrap();
+    }
+
+    #[test]
+    fn test_run_two_account_scenario() {
+        let scenario = crate::sim::examples::two_account_scenario::two_account_scenario();
+        let _r = run_simulation(scenario).unwrap();
+    }
+
+    #[test]
+    fn test_run_simulation_with_transfer() {
+        let mut scenario = crate::sim::examples::two_account_scenario::two_account_scenario();
+        scenario.accounts[0].account.name = "Account 1".into();
+        scenario.accounts[1].account.name = "Account 2".into();
+
+        let transfer = Transfer {
+            from: "Account 1".to_string(),
+            to: "Account 2".to_string(),
+            frequency: Frequency::MonthStart,
+            start_date: None,
+            end_date: None,
+            amount: 100.0,
+        };
+        scenario.transfers = vec![transfer];
+
+        run_simulation(scenario).unwrap();
+
+        // TODO: Check that the transfer happened
+    }
 }

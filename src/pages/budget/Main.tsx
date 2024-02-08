@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { SimulationResult } from "../rustTypes/SimulationResult";
+import { SimulationResult } from "../../rustTypes/SimulationResult";
 import BalanceChart, {
   IBalanceData,
   formatResultsForBalanceChart,
@@ -9,11 +9,11 @@ import CashFlowsChart, {
   formatResultsForCashFlowChart,
 } from "./CashFlowsChart";
 import CashFlowList from "./CashFlowList";
-import { CashFlow } from "../rustTypes/CashFlow";
-import { getResults } from "../api/sim";
-import { getCashFlowsFromConfig, listAccounts } from "../api/account";
+import { CashFlow } from "../../rustTypes/CashFlow";
+import { getResults } from "../../api/sim";
+import { getCashFlowsFromConfig, listAccounts } from "../../api/account";
 import { Button } from "@tremor/react";
-import { useSelectedScenarioStore } from "../common/Select";
+import { useSelectedScenarioStore } from "../../common/Select";
 
 // The cash flow chart has performance issues with the number of items that can be
 // displayed. This is used to isolate the issue to the component so that the entire

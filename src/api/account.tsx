@@ -3,7 +3,7 @@ import { Account } from "../rustTypes/Account";
 import { CashFlow } from "../rustTypes/CashFlow";
 
 export const listAccounts = async (): Promise<string[]> => {
-  return invoke<string[]>("list_available_scenarios");
+  return invoke<string[]>("list_available_accounts");
 };
 
 export const getCashFlowsFromConfig = async (

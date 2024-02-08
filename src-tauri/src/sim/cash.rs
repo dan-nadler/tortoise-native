@@ -233,6 +233,10 @@ impl Account {
         self.name.clone()
     }
 
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+
     pub fn default() -> Account {
         Account {
             name: "Account".to_string(),

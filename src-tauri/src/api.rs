@@ -32,7 +32,7 @@ fn get_file_names(contains: &str) -> Vec<String> {
 }
 
 #[tauri::command]
-pub async fn list_available_scenarios() -> Result<Value, String> {
+pub async fn list_available_accounts() -> Result<Value, String> {
     let account_names = io::list_accounts();
     Ok(json!(&account_names))
 }
