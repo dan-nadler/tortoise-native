@@ -6,6 +6,10 @@ export const listAccounts = async (): Promise<string[]> => {
   return invoke<string[]>("list_available_accounts");
 };
 
+export const listAccountsDetail = async (): Promise<Account[]> => {
+  return invoke<Account[]>("list_available_accounts_detail");
+}
+
 export const getCashFlowsFromConfig = async (
   accountName: string,
 ): Promise<CashFlow[]> => {

@@ -15,11 +15,11 @@ const App: React.FC = () => {
         <Nav>
           <Routes>
             <Route path="/" Component={Home} />
-            <Route path="/budget" Component={Budget} />
             <Route path="/retirement" Component={Retirement} />
             <Route path="/account" Component={Account} />
             <Route path="/account/:name" Component={Account} />
             <Route path="/account/:name/:index" Component={CashFlowForm} />
+            <Route path="/account/budget/:name" Component={Budget} />
           </Routes>
         </Nav>
       </MemoryRouter>

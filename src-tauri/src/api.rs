@@ -37,6 +37,12 @@ pub async fn list_available_accounts() -> Result<Value, String> {
     Ok(json!(&account_names))
 }
 
+#[tauri::command]
+pub async fn list_available_accounts_detail() -> Result<Value, String> {
+    let account_details = io::list_accounts_detail();
+    Ok(json!(&account_details))
+}
+
 // list available portfolios
 #[tauri::command]
 pub async fn list_available_portfolios() -> Result<Value, String> {
@@ -86,7 +92,7 @@ pub async fn get_results(
         start_date: acc.start_date.clone(),
         end_date: acc.end_date.clone(),
         transfers: vec![],
-        num_samples: 1,
+        num_samples: 10_000,
     };
 
     let response = sim::run_simulation(scenario);

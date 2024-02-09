@@ -1,72 +1,10 @@
-import { Button, Divider, Title } from "@tremor/react";
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeftIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { useAccountStore } from "./store/Account";
-import { AccountSelect } from "./common/Select";
+import { Divider, Title } from "@tremor/react";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { navContext } from "./common/NavProvider";
-import { saveAccount } from "./api/account";
 
 const capitalizeFirstLetter = (s: string): string => {
   return s.charAt(0).toUpperCase() + s.slice(1);
-};
-
-const NavButton: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [previousRoot, setPreviousRoot] = React.useState<string | null>(null);
-  const state = useAccountStore();
-  const previousRootName =
-    previousRoot && capitalizeFirstLetter(previousRoot?.split("/")[1]);
-
-  // TODO: this 'navigate back' functionality is not working
-  if (location.pathname.toLowerCase().includes("account")) {
-    if (previousRoot && previousRootName) {
-      return (
-        <Button
-          size="md"
-          variant="light"
-          icon={ArrowLeftIcon}
-          onClick={() => {
-            saveAccount(state);
-            setPreviousRoot(previousRoot);
-            navigate(previousRoot.toLowerCase());
-          }}
-        >
-          Go Back to {previousRootName}
-        </Button>
-      );
-    } else {
-      return (
-        <Button
-          size="md"
-          variant="light"
-          icon={ArrowLeftIcon}
-          onClick={() => {
-            saveAccount(state);
-            setPreviousRoot("/");
-            navigate("/");
-          }}
-        >
-          Forecast
-        </Button>
-      );
-    }
-  } else {
-    return (
-      <Button
-        size="md"
-        variant="light"
-        icon={Cog6ToothIcon}
-        onClick={() => {
-          setPreviousRoot(location.pathname);
-          navigate(`/scenario/${state.name}`);
-        }}
-      >
-        Edit Account
-      </Button>
-    );
-  }
 };
 
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -79,7 +17,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
       <div>
         <nav className="flex flex-row justify-between">
-          <div className="flex flex-row">
+          <div className="flex w-1/3 flex-shrink flex-grow-0 flex-row">
             <ul className="flex items-center space-x-2">
               <li key="home">
                 <Link to="/">
@@ -103,12 +41,8 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               })}
             </ul>
           </div>
-          <AccountSelect
-            className={"flex max-w-[500px] flex-grow flex-row gap-2"}
-          >
-            {auxButtons}
-          </AccountSelect>
-          <NavButton />
+          {auxButtons}
+          <div className="w-1/3 flex-shrink flex-grow-0" />
         </nav>
         <Divider />
         {children}

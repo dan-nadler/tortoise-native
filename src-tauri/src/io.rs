@@ -45,7 +45,6 @@ pub fn get_or_create_accounts_save_dir() -> PathBuf {
 /// "YYYYMMDD_HHMMSS". The version string can be used to uniquely identify a specific version
 /// of an account file.
 fn get_next_version() -> String {
-    
     let now = chrono::Local::now();
     let version = now.format("%Y%m%d_%H%M%S").to_string();
     version
@@ -94,8 +93,16 @@ pub fn list_accounts() -> Vec<String> {
             }
         }
     }
-
     account_names
+}
+
+pub fn list_accounts_detail() -> Vec<Account> {
+    let accounts: Vec<String> = list_accounts();
+    let mut account_details = Vec::new();
+    for account in accounts.iter() {
+        account_details.push(read_account(&account).unwrap());
+    }
+    account_details
 }
 
 fn get_latest_account_version(account_name: &str) -> Option<String> {

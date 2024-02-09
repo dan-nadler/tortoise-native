@@ -1,5 +1,4 @@
-import { XMarkIcon } from "@heroicons/react/24/solid";
-import { TextInput, Badge } from "@tremor/react";
+import { TextInput } from "@tremor/react";
 import React, { useRef } from "react";
 import TagsInput, { ReactTagsInputProps } from "react-tagsinput";
 import Tag from "./Tag";
@@ -40,8 +39,8 @@ const MyTagsInput: React.FC<MyTagsInputProps> = (props) => {
           onBlur={(e) => e.target.value && addTag(e.target.value)}
         />
       )}
-      renderTag={({ tag }) => {
-        return <Tag onRemoveTag={props.onRemoveTag} tag={tag} />;
+      renderTag={({ tag, key }) => {
+        return <Tag key={key} onRemoveTag={props.onRemoveTag} tag={tag} />;
       }}
       renderLayout={(tagComponents, inputComponent) => (
         <div className="flex flex-col flex-wrap gap-4">

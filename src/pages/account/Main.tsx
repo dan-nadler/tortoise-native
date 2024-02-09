@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useLayoutEffect } from "react";
 import {
   Text,
   TextInput,
   Card,
-  Badge,
   Grid,
   BadgeDelta,
   Flex,
@@ -15,9 +14,9 @@ import {
 } from "@tremor/react";
 import { useAccountStore } from "../../store/Account";
 import { CashFlow } from "../../rustTypes/CashFlow";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, listAccounts } from "../../api/account";
+import { getAccount, saveAccount } from "../../api/account";
 import { navContext } from "../../common/NavProvider";
 import Tag from "../../common/Tag";
 
@@ -146,7 +145,7 @@ const CashFlowCard: React.FC<{
         alignItems="end"
         className="flex-grow gap-2"
       >
-        {item.tags?.map((tag, i) => <Tag key={i} tag={tag}/>)}
+        {item.tags?.map((tag, i) => <Tag key={i} tag={tag} />)}
       </Flex>
     </Card>
   );
@@ -189,10 +188,32 @@ const CashFlowCards: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const [_, setAvailableScenarios] = useState<string[]>([]);
   const state = useAccountStore();
   const { name } = useParams<{ name: string }>();
+  const [searchParams, _] = useSearchParams();
+  const navigate = useNavigate();
   const { setAuxButtons } = useContext(navContext);
+
+  useLayoutEffect(() => {
+    if (name) {
+      getAccount(name)
+        .then((a) => {
+          state.setAll(a);
+        })
+        .then(() => {
+          if (searchParams.has("next")) {
+            let i = searchParams.get("next");
+            if (i) navigate(`/account/${name}/${i}`);
+          }
+        });
+    }
+  }, [name]);
+
+  useEffect(()=>{
+    return () => { 
+      saveAccount(state)
+    }
+  },[])
 
   useEffect(() => {
     setAuxButtons &&
@@ -212,16 +233,6 @@ const Main: React.FC = () => {
     return () => {
       setAuxButtons && setAuxButtons(null);
     };
-  }, []);
-
-  useEffect(() => {
-    listAccounts().then(setAvailableScenarios);
-
-    if (name) {
-      getAccount(name).then((a) => {
-        state.setAll(a);
-      });
-    }
   }, []);
 
   return (

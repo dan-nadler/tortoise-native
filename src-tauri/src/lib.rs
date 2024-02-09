@@ -55,6 +55,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             api::get_results,
             api::list_available_accounts,
+            api::list_available_accounts_detail,
             api::list_available_portfolios,
             api::get_cash_flows_from_config,
             api::get_account_config,

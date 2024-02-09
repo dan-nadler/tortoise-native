@@ -13,16 +13,18 @@ import MyNumberInput from "../../common/NumberInput";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import MyTagsInput from "../../common/TagsInput";
 import { Frequency } from "../../rustTypes/Frequency";
+import { saveAccount } from "../../api/account";
 
 const CashFlowForm: React.FC = () => {
   const navigate = useNavigate();
-  const { index } = useParams<{ index: string }>();
+  const { index } = useParams<{ name: string; index: string }>();
 
   if (index === undefined) {
     return <div>Invalid index</div>;
   }
 
   const i = parseInt(index);
+  const state = useAccountStore();
   const {
     setCashFlowName,
     setCashFlowAmount,
@@ -34,7 +36,13 @@ const CashFlowForm: React.FC = () => {
     removeCashFlowTag,
     removeCashFlowIndex,
     cash_flows,
-  } = useAccountStore();
+  } = state;
+
+  useEffect(() => {
+    return () => {
+      saveAccount(state);
+    };
+  }, []);
 
   const [amountError, setAmountError] = React.useState<boolean>(false);
   const [taxError, setTaxError] = React.useState<boolean>(false);
@@ -173,10 +181,14 @@ const CashFlowForm: React.FC = () => {
         <Button type="submit" color="blue">
           Done
         </Button>
-        <Button type="button" color="red" onClick={() => {
-          removeCashFlowIndex(i);
-          navigate("/account");
-        }}>
+        <Button
+          type="button"
+          color="red"
+          onClick={() => {
+            removeCashFlowIndex(i);
+            navigate("/account");
+          }}
+        >
           Delete
         </Button>
       </form>
