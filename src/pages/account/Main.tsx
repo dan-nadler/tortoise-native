@@ -211,6 +211,8 @@ const Main: React.FC = () => {
 
   useEffect(()=>{
     return () => { 
+      // TODO: BUGFIX: This doesn't work well and navigating back to the home screen doesn't show updates
+      // Not sure if they're not saving at all or if there is a race condition
       saveAccount(state)
     }
   },[])

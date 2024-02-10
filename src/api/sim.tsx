@@ -6,8 +6,8 @@ export type ScenarioResult = Record<string, SimulationResult>;
 export const runAccountSimulation = async (
   accountName: string,
   portfolioFilename?: string,
-): Promise<SimulationResult> => {
-  return invoke<SimulationResult>("run_account_simulation", {
+): Promise<ScenarioResult> => {
+  return invoke<ScenarioResult>("run_account_simulation", {
     accountName,
     portfolioFilename: portfolioFilename || null,
   });

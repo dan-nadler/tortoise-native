@@ -44,7 +44,7 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
   const colors = Array.from(
     { length: categories.length },
     (_, index) => {
-      return ["emerald", "indigo", "rose", "amber",][index % 6];
+      return ["emerald", "indigo", "fuchsia", "amber", "lime", "violet", "pink", "yellow"][index % 8];
     },
   );
 
@@ -52,6 +52,7 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
     <Card className="h-auto">
       <Title>Account Balance Over Time</Title>
       <AreaChart
+        className="h-[400px]"
         showAnimation={true}
         data={data}
         index="date"
