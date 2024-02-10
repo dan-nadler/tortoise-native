@@ -30,6 +30,7 @@ ts-rs = { version = "7.1.1", features = ["chrono-impl"] }
 ndarray = "0.15.6"
 ndarray-rand = "0.14.0"
 tokio = { version = "1.36", features = ["macros"] }
+rayon = "1.8.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

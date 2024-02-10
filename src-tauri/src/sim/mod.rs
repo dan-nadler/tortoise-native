@@ -7,7 +7,6 @@ pub mod cash;
 pub mod examples;
 pub mod excel;
 pub mod portfolio;
-mod sample;
 
 #[derive(Serialize, Clone, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
@@ -35,6 +34,31 @@ pub struct Scenario {
     pub start_date: chrono::NaiveDate,
     pub end_date: chrono::NaiveDate,
     pub num_samples: usize,
+}
+
+impl Scenario {
+    pub fn from_accounts(
+        accounts: Vec<cash::Account>,
+        start_date: chrono::NaiveDate,
+        end_date: chrono::NaiveDate,
+        num_samples: usize,
+    ) -> Scenario {
+        let invested_accounts = accounts
+            .into_iter()
+            .map(|a| InvestedAccount {
+                account: a,
+                portfolio: None,
+            })
+            .collect();
+
+        Scenario {
+            accounts: invested_accounts,
+            start_date: start_date,
+            end_date: end_date,
+            transfers: vec![],
+            num_samples: num_samples,
+        }
+    }
 }
 
 #[derive(Serialize, Clone, Debug, TS)]
@@ -117,9 +141,8 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
             for f in &flows {
                 account_results.payments.push(f.clone());
             }
-
-            d = d.succ_opt().unwrap();
         }
+        d = d.succ_opt().unwrap();
     }
     Ok(results)
 }

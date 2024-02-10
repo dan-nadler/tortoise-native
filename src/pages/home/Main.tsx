@@ -26,22 +26,58 @@ import { Account } from "../../rustTypes/Account";
 import { valueFormatter } from "../../common/ValueFormatter";
 import { Link, useNavigate } from "react-router-dom";
 import { navContext } from "../../common/NavProvider";
+import { create } from "zustand";
 
 interface AccountCardProps {
   account: Account;
 }
+
+type AccountSelectionStore = {
+  selectedAccounts: string[];
+  addAccount: (account: string) => void;
+  removeAccount: (account: string) => void;
+};
+
+export const useAccountSelectionStore = create<AccountSelectionStore>(
+  (set) => ({
+    selectedAccounts: [],
+    addAccount: (account) =>
+      set((state) => ({
+        selectedAccounts: [...state.selectedAccounts, account],
+      })),
+    removeAccount: (account) =>
+      set((state) => ({
+        selectedAccounts: state.selectedAccounts.filter((a) => a !== account),
+      })),
+  }),
+);
 
 const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isSelected, setIsSelected] = React.useState<boolean>(false);
   const { name, cash_flows } = account;
   const navigate = useNavigate();
+  const { addAccount, removeAccount, selectedAccounts } =
+    useAccountSelectionStore();
+
+  useEffect(() => {
+    if (selectedAccounts.includes(name)) {
+      setIsSelected(true);
+    }
+  }, []);
 
   return (
     <div className="w-full p-1 md:w-1/2 lg:w-4/12 xl:w-3/12">
       <Card
         decoration={isSelected && "left"}
-        onClick={() => setIsSelected(!isSelected)}
+        onClick={() => {
+          setIsSelected(!isSelected);
+          if (isSelected) {
+            removeAccount(name);
+          } else {
+            addAccount(name);
+          }
+        }}
         decorationColor={"green"}
         className={`
         cursor-pointer
@@ -82,7 +118,14 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
               </Badge>
             ))}
             {cash_flows.length > 3 ? (
-              <Button variant="light" onClick={() => setIsOpen(true)}>
+              <Button
+                variant="light"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }}
+              >
                 And {cash_flows.length - 3} more...
               </Button>
             ) : null}
@@ -133,6 +176,27 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   );
 };
 
+const RunScenarioButton: React.FC = () => {
+  const navigate = useNavigate();
+  const { selectedAccounts } = useAccountSelectionStore();
+
+  const accounts = new URLSearchParams();
+  accounts.append("accounts", selectedAccounts.join(","));
+
+  return (
+    <Button
+      variant="light"
+      icon={ChartPieIcon}
+      iconPosition="right"
+      onClick={() => {
+        navigate("/scenario?" + accounts.toString());
+      }}
+    >
+      Scenario Forecast
+    </Button>
+  );
+};
+
 const Home: React.FC = () => {
   const [accounts, setAccounts] = React.useState<Account[]>([]);
   useEffect(() => {
@@ -143,12 +207,7 @@ const Home: React.FC = () => {
 
   const { setAuxButtons } = useContext(navContext);
   useEffect(() => {
-    setAuxButtons &&
-      setAuxButtons(
-        <Button variant="light" icon={ChartPieIcon} iconPosition="right" disabled={true}>
-          Scenario Forecast (Coming Soon)
-        </Button>,
-      );
+    setAuxButtons && setAuxButtons(<RunScenarioButton />);
     return () => {
       setAuxButtons && setAuxButtons(null);
     };

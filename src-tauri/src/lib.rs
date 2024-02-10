@@ -53,7 +53,8 @@ pub fn run() {
             )
         })
         .invoke_handler(tauri::generate_handler![
-            api::get_results,
+            api::run_account_simulation,
+            api::run_scenario_simulation,
             api::list_available_accounts,
             api::list_available_accounts_detail,
             api::list_available_portfolios,

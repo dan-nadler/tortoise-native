@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { SimulationResult } from "../../rustTypes/SimulationResult";
+import { SimulationResult } from "../../../rustTypes/SimulationResult";
 import BalanceChart, {
   IBalanceData,
   formatResultsForBalanceChart,
@@ -9,9 +9,9 @@ import CashFlowsChart, {
   formatResultsForCashFlowChart,
 } from "./CashFlowsChart";
 import CashFlowList from "./CashFlowList";
-import { CashFlow } from "../../rustTypes/CashFlow";
-import { getResults } from "../../api/sim";
-import { getCashFlowsFromConfig, listAccounts } from "../../api/account";
+import { CashFlow } from "../../../rustTypes/CashFlow";
+import { runAccountSimulation } from "../../../api/sim";
+import { getCashFlowsFromConfig, listAccounts } from "../../../api/account";
 import { Button } from "@tremor/react";
 import { useParams } from "react-router-dom";
 
@@ -44,7 +44,7 @@ const Main: React.FC = () => {
     try {
       const startTime = performance.now();
 
-      let r = await getResults(scenario);
+      let r = await runAccountSimulation(scenario);
       let j = r[scenario];
       let cf = await getCashFlowsFromConfig(scenario);
 

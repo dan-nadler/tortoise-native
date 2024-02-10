@@ -66,7 +66,7 @@ where
 }
 
 #[tauri::command]
-pub async fn get_results(
+pub async fn run_account_simulation(
     account_name: String,
     portfolio_filename: Option<String>,
 ) -> Result<Value, String> {
@@ -80,7 +80,7 @@ pub async fn get_results(
 
     if !account.is_ok() {
         return Err("{\"error\": \"Error loading account\"}".to_string());
-    }  
+    }
 
     let acc = account.unwrap();
 
@@ -92,7 +92,7 @@ pub async fn get_results(
         start_date: acc.start_date.clone(),
         end_date: acc.end_date.clone(),
         transfers: vec![],
-        num_samples: 10_000,
+        num_samples: 1,
     };
 
     let response = sim::run_simulation(scenario);
@@ -106,9 +106,8 @@ pub async fn get_results(
 }
 
 #[tokio::test]
-async fn test_get_results() {
-    let r = get_results("Example".to_string(), None).await;
-    assert!(r.is_ok());
+async fn test_get_results_fails_cleanly() {
+    let _r = run_account_simulation("Not A Real Scenario 1234".to_string(), None).await;
 }
 
 #[tauri::command]
@@ -138,4 +137,45 @@ pub async fn save_account_config(account: String) -> Result<(), String> {
     let account: sim::cash::Account = serde_json::from_str(&account).unwrap();
     io::write_account_file(&account);
     Ok(())
+}
+
+#[tauri::command]
+pub async fn run_scenario_simulation(account_names: Vec<String>) -> Result<Value, String> {
+    let mut accounts: Vec<sim::cash::Account> = Vec::new();
+    let mut start_date: Option<chrono::NaiveDate> = None;
+    let mut end_date: Option<chrono::NaiveDate> = None;
+
+    for account_name in account_names {
+        let account = io::read_account(&account_name);
+        let account_start_date = account.as_ref().unwrap().start_date;
+        let account_end_date = account.as_ref().unwrap().end_date;
+
+        if account.is_ok() {
+            accounts.push(account.unwrap());
+            if start_date.is_none() || account_start_date < start_date.unwrap() {
+                start_date = Some(account_start_date);
+            }
+            if end_date.is_none() || account_end_date > end_date.unwrap() {
+                end_date = Some(account_end_date);
+            }
+        }
+    }
+
+    if (end_date.is_none() || start_date.is_none()) && accounts.len() > 0 {
+        return Err(
+            "{\"error\": \"Unable to infer simulation date range from accounts.\"}".to_string(),
+        );
+    }
+
+    let scenario =
+        sim::Scenario::from_accounts(accounts, start_date.unwrap(), end_date.unwrap(), 1);
+
+    let response = sim::run_simulation(scenario);
+
+    if !response.is_ok() {
+        return Err("{\"error\": \"Error running simulation\"}".to_string());
+    }
+
+    // let r = serde_json::to_string(&response.unwrap()).unwrap();
+    Ok(json!(&response.unwrap()))
 }

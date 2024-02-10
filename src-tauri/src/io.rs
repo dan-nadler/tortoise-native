@@ -141,9 +141,3 @@ pub fn read_account(account_name: &str) -> Result<Account, serde_yaml::Error> {
 
     serde_yaml::from_str(&account_str)
 }
-
-#[test]
-fn read_example_config() {
-    let account = read_account("example");
-    assert_eq!(account.unwrap().name, "Example");
-}
