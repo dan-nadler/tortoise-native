@@ -43,7 +43,6 @@ pub async fn list_available_accounts_detail() -> Result<Value, String> {
     Ok(json!(&account_details))
 }
 
-// list available portfolios
 #[tauri::command]
 pub async fn list_available_portfolios() -> Result<Value, String> {
     let file_names = get_file_names("portfolio");
@@ -136,6 +135,16 @@ pub async fn get_account_config(account_name: String) -> Result<Value, String> {
 pub async fn save_account_config(account: String) -> Result<(), String> {
     let account: sim::cash::Account = serde_json::from_str(&account).unwrap();
     io::write_account_file(&account);
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn delete_account(account_name: String) -> Result<(), String> {
+    let r = io::delete_account(&account_name);
+    println!("{:?}", r);
+    if r.is_err() {
+        return Err("{\"error\": \"Error deleting account\"}".to_string());
+    }
     Ok(())
 }
 

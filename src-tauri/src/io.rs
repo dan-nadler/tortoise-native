@@ -141,3 +141,25 @@ pub fn read_account(account_name: &str) -> Result<Account, serde_yaml::Error> {
 
     serde_yaml::from_str(&account_str)
 }
+
+pub fn delete_account(account_name: &str) -> Result<(), std::io::Error> {
+    let dir = get_or_create_accounts_save_dir();
+    let account_folder = dir.join(account_name);
+
+    let deleted_folder = dir.join(".deleted").join(account_name);  
+    std::fs::create_dir_all(&deleted_folder).expect("Could not create deleted folder");
+    // move the account files to the deleted folder
+
+    for entry in fs::read_dir(&account_folder)?.into_iter() {
+        let entry = entry?;
+        let path = entry.path();
+        let file_name = path.file_name().unwrap().to_str().unwrap();
+        let deleted_path = deleted_folder.join(file_name);
+        fs::rename(path, deleted_path)?;
+    };
+
+    // delete main account folder
+    fs::remove_dir_all(&account_folder)?;
+
+    Ok(())
+}

@@ -50,16 +50,18 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
 
   return (
     <Card className="h-auto">
-      <Title>Account Balance Over Time</Title>
+      <Title>Total Balance Over Time</Title>
       <AreaChart
         className="h-[400px]"
         showAnimation={true}
         data={data}
         index="date"
+        stack={true}
         yAxisWidth={60}
         categories={categories}
         colors={colors}
         valueFormatter={valueFormatter}
+        
       />
     </Card>
   );

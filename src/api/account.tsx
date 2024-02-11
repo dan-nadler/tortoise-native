@@ -30,3 +30,9 @@ export const saveAccount = async (account: Account): Promise<void> => {
     account: JSON.stringify(account),
   });
 };
+
+export const deleteAccount = async (accountName: string): Promise<void> => {
+  await invoke<void>("delete_account", {
+    accountName,
+  });
+}

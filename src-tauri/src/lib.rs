@@ -60,7 +60,8 @@ pub fn run() {
             api::list_available_portfolios,
             api::get_cash_flows_from_config,
             api::get_account_config,
-            api::save_account_config
+            api::save_account_config,
+            api::delete_account,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

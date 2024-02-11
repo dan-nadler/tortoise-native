@@ -15,12 +15,8 @@ import {
   TableHeaderCell,
   TableBody,
 } from "@tremor/react";
-import React, { useContext, useEffect } from "react";
-import {
-  BeakerIcon,
-  ChartPieIcon,
-  Cog6ToothIcon,
-} from "@heroicons/react/24/outline";
+import React, { useContext, useEffect, useLayoutEffect } from "react";
+import { ChartBarIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { listAccountsDetail } from "../../api/account";
 import { Account } from "../../rustTypes/Account";
 import { valueFormatter } from "../../common/ValueFormatter";
@@ -92,17 +88,23 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
             <Button
               tooltip="View Account Forecast"
               variant="light"
-              icon={BeakerIcon}
+              icon={ChartBarIcon}
               iconPosition="right"
               color="slate"
-              onClick={() => navigate(`/account/budget/${account.name}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/account/budget/${account.name}`);
+              }}
             />
             <Button
               tooltip="Edit Account"
               variant="light"
               icon={Cog6ToothIcon}
               color="slate"
-              onClick={() => navigate(`/account/${account.name}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/account/${account.name}`);
+              }}
             />
           </div>
         </div>
@@ -186,7 +188,7 @@ const RunScenarioButton: React.FC = () => {
   return (
     <Button
       variant="light"
-      icon={ChartPieIcon}
+      icon={ChartBarIcon}
       iconPosition="right"
       onClick={() => {
         navigate("/scenario?" + accounts.toString());
@@ -199,15 +201,20 @@ const RunScenarioButton: React.FC = () => {
 
 const Home: React.FC = () => {
   const [accounts, setAccounts] = React.useState<Account[]>([]);
-  useEffect(() => {
-    listAccountsDetail().then((data) => {
-      setAccounts(data);
-    });
+  useLayoutEffect(() => {
+    // the timeout is to mitigate a race condition when landing here after editing or creating an account
+    // without this timeout, the list of accounts may not include the new or edited account
+    setTimeout(() => {
+      listAccountsDetail().then((data) => {
+        setAccounts(data);
+      });
+    }, 100);
   }, []);
 
   const { setAuxButtons } = useContext(navContext);
   useEffect(() => {
     setAuxButtons && setAuxButtons(<RunScenarioButton />);
+
     return () => {
       setAuxButtons && setAuxButtons(null);
     };

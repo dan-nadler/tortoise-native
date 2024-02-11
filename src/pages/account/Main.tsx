@@ -11,14 +11,17 @@ import {
   Divider,
   Icon,
   NumberInput,
+  Dialog,
+  DialogPanel,
 } from "@tremor/react";
 import { useAccountStore } from "../../store/Account";
 import { CashFlow } from "../../rustTypes/CashFlow";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, saveAccount } from "../../api/account";
+import { deleteAccount, getAccount, saveAccount } from "../../api/account";
 import { navContext } from "../../common/NavProvider";
 import Tag from "../../common/Tag";
+import { useDebouncedCallback } from "use-debounce";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -193,6 +196,7 @@ const Main: React.FC = () => {
   const [searchParams, _] = useSearchParams();
   const navigate = useNavigate();
   const { setAuxButtons } = useContext(navContext);
+  const [deleteIsOpen, setDeleteIsOpen] = React.useState(false);
 
   useLayoutEffect(() => {
     if (name) {
@@ -209,13 +213,19 @@ const Main: React.FC = () => {
     }
   }, [name]);
 
-  useEffect(()=>{
-    return () => { 
-      // TODO: BUGFIX: This doesn't work well and navigating back to the home screen doesn't show updates
-      // Not sure if they're not saving at all or if there is a race condition
-      saveAccount(state)
-    }
-  },[])
+  // Save every `timeout` seconds at most. Otherwise, will save on unmount due to the `flush` call in the cleanup function.
+  let save = useDebouncedCallback((state) => {
+    saveAccount(state);
+  }, 30_000);
+
+  useEffect(() => {
+    let unsub = useAccountStore.subscribe(save);
+
+    return () => {
+      unsub();
+      save.flush();
+    };
+  }, []);
 
   useEffect(() => {
     setAuxButtons &&
@@ -243,6 +253,52 @@ const Main: React.FC = () => {
         <AccountForm />
         <Divider>Cash Flows</Divider>
         <CashFlowCards />
+        <Divider>Danger</Divider>
+        <Button
+          className="w-full max-w-[720px] m-auto"
+          disabled={!name}
+          color="red"
+          onClick={() => setDeleteIsOpen(!deleteIsOpen)}
+        >
+          Delete
+        </Button>
+        <Dialog
+          open={deleteIsOpen}
+          onClose={() => setDeleteIsOpen(false)}
+          static={true}
+          className="z-[100]"
+        >
+          <DialogPanel className="flex max-w-lg flex-col">
+            <Title>Are you sure you want to delete this account?</Title>
+            <Divider />
+            <div className="flex flex-row">
+              <Button
+                variant="primary"
+                size="xl"
+                color="red"
+                className="mx-auto flex items-center"
+                onClick={() =>
+                  deleteAccount(name!).then(() => {
+                    state.reset();
+                    save.cancel();
+                    navigate("/");
+                  })
+                }
+              >
+                Delete
+              </Button>
+              <Button
+                variant="secondary"
+                color="slate"
+                size="xl"
+                className="mx-auto flex items-center"
+                onClick={() => setDeleteIsOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogPanel>
+        </Dialog>
       </div>
     </div>
   );
