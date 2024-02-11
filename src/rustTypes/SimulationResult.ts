@@ -2,4 +2,4 @@
 import type { AccountBalance } from "./AccountBalance";
 import type { Payment } from "./Payment";
 
-export interface SimulationResult { balances: Array<AccountBalance>, payments: Array<Payment>, }
+export interface SimulationResult { balances: Array<AccountBalance>, uninvested_balances: Array<AccountBalance>, payments: Array<Payment>, }

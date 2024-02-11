@@ -1,5 +1,5 @@
 const stringFormatter = (number: number) => {
-  const rounded = Math.round(number);
+  const rounded = Math.round(number * 10) / 10;
   return "$" + new Intl.NumberFormat("us").format(rounded).toString();
 };
 
@@ -7,7 +7,7 @@ const stringFormatter = (number: number) => {
 // and $1,000,000 becomes $X,XXX,XXX
 const anonymizeFormatter = (number: number) => {
   return stringFormatter(number).replace(/\d/g, "X");
-}
+};
 
 export const valueFormatter = (number: number, anon: boolean = false) => {
   let fmt = anon === true ? anonymizeFormatter : stringFormatter;

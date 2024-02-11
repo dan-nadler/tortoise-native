@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { runScenarioSimulation } from "../../api/sim";
-import { Button } from "@tremor/react";
+import { ScenarioResult, runScenarioSimulation } from "../../api/sim";
+import { Button, Switch } from "@tremor/react";
 import BalanceChart, { formatResultsForBalanceChart } from "./BalanceChart";
 
 const Main: React.FC = () => {
   const [searchParams, _] = useSearchParams();
   const [isRunning, setIsRunning] = React.useState<boolean>(false);
   const accounts = searchParams.get("accounts");
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<ScenarioResult | null>(null);
   const [balanceChartData, setBalanceChartData] = useState<any>(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const Main: React.FC = () => {
         .then((j) => {
           setResults(j);
 
-          const balanceChartData = formatResultsForBalanceChart(j);
+          const balanceChartData = formatResultsForBalanceChart(j, false);
           setBalanceChartData(balanceChartData);
         })
         .finally(() => {
@@ -26,6 +26,12 @@ const Main: React.FC = () => {
         });
     }
   }, [accounts]);
+
+  const handleSwitch = (invested: boolean) => {
+    if (!results) return;
+    const balanceChartData = formatResultsForBalanceChart(results, invested);
+    setBalanceChartData(balanceChartData);
+  }
 
   return (
     <div>
@@ -44,9 +50,25 @@ const Main: React.FC = () => {
       <div
         className={`flex flex-row flex-wrap gap-2 ${results && !isRunning ? "" : "hidden"}`}
       >
+        <div className="flex w-full flex-row justify-center gap-2">
+          <Switch
+            name="invested"
+            id="switch"
+            onChange={(e) => {
+              handleSwitch(e.valueOf());
+            }}
+          />
+          <label className="dark:text-white" htmlFor="switch">
+            Invest Accounts
+          </label>
+        </div>
         <div className="flex flex-col gap-2 md:w-full lg:w-full">
           {balanceChartData && (
-            <BalanceChart data={balanceChartData.data} categories={balanceChartData.categories} />
+            <BalanceChart
+              data={balanceChartData.data}
+              categories={balanceChartData.categories}
+              max={balanceChartData.max}
+            />
           )}
         </div>
         <div className="flex-grow"></div>

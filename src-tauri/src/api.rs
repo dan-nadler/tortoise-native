@@ -141,7 +141,6 @@ pub async fn save_account_config(account: String) -> Result<(), String> {
 #[tauri::command]
 pub async fn delete_account(account_name: String) -> Result<(), String> {
     let r = io::delete_account(&account_name);
-    println!("{:?}", r);
     if r.is_err() {
         return Err("{\"error\": \"Error deleting account\"}".to_string());
     }
@@ -178,8 +177,9 @@ pub async fn run_scenario_simulation(account_names: Vec<String>) -> Result<Value
 
     let scenario =
         sim::Scenario::from_accounts(accounts, start_date.unwrap(), end_date.unwrap(), 1);
-
+        
     let response = sim::run_simulation(scenario);
+    
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());

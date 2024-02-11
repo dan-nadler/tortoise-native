@@ -1,21 +1,26 @@
 use crate::sim::cash::{get_account_balance_at, Frequency};
 use crate::sim::portfolio::Invest;
+use ndarray::Array1;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::hash::Hash;
+use tauri::http::uri::Port;
 use ts_rs::TS;
+
+use self::portfolio::{Asset, Portfolio};
 pub mod cash;
 pub mod examples;
 pub mod excel;
 pub mod portfolio;
 
-#[derive(Serialize, Clone, TS)]
+#[derive(Debug, Serialize, Clone, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct InvestedAccount {
     pub account: cash::Account,
     pub portfolio: Option<portfolio::Portfolio>,
 }
 
-#[derive(Serialize, Clone, TS)]
+#[derive(Debug, Serialize, Clone, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct Transfer {
     pub from: String,
@@ -26,7 +31,7 @@ pub struct Transfer {
     pub amount: f64,
 }
 
-#[derive(Serialize, Clone, TS)]
+#[derive(Debug, Serialize, Clone, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct Scenario {
     pub accounts: Vec<InvestedAccount>,
@@ -47,7 +52,7 @@ impl Scenario {
             .into_iter()
             .map(|a| InvestedAccount {
                 account: a,
-                portfolio: None,
+                portfolio: Portfolio::default(),
             })
             .collect();
 
@@ -83,18 +88,22 @@ impl AccountBalance {
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct SimulationResult {
     pub balances: Vec<AccountBalance>,
+    pub uninvested_balances: Vec<AccountBalance>,
     pub payments: Vec<cash::Payment>,
 }
 
 impl SimulationResult {
     pub fn new(
         balances: Option<Vec<AccountBalance>>,
+        uninvested_balances: Option<Vec<AccountBalance>>,
         payments: Option<Vec<cash::Payment>>,
     ) -> SimulationResult {
         let b = balances.unwrap_or(vec![]);
+        let u = uninvested_balances.unwrap_or(vec![]);
         let p = payments.unwrap_or(vec![]);
         SimulationResult {
             balances: b,
+            uninvested_balances: u,
             payments: p,
         }
     }
@@ -103,8 +112,12 @@ impl SimulationResult {
 pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationResult>, String> {
     let simulation_frequency = Frequency::BusinesDay;
     let mut results = HashMap::new();
+    let mut prev: HashMap<String, Array1<f64>> = HashMap::new();
     for a in &scenario.accounts {
-        results.insert(a.account.name.clone(), SimulationResult::new(None, None));
+        results.insert(
+            a.account.name.clone(),
+            SimulationResult::new(None, None, None),
+        );
     }
 
     let mut d = scenario.start_date;
@@ -114,9 +127,29 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
             let portfolio = &invested_account.portfolio;
             let num_samples = &scenario.num_samples;
             let account_results = results.get_mut(&account.name).unwrap();
+            let mut bd: Array1<f64> = Array1::zeros(*num_samples);
 
-            // Get account balance due to defined cash flows
-            let mut bd = get_account_balance_at(account.clone(), d, *num_samples);
+            let p: Option<&Array1<f64>> = prev.get::<String>(&account.name);
+
+            let uninvested_balance = get_account_balance_at(account.clone(), d, *num_samples);
+            account_results
+                .uninvested_balances
+                .push(AccountBalance::new(
+                    d,
+                    account.name.clone(),
+                    uninvested_balance.mean().unwrap(),
+                ));
+
+            if p.is_some() {
+                bd = p.unwrap().clone();
+                bd += account
+                    .flows_at(d)
+                    .iter()
+                    .fold(0.0, |acc, x| acc + x.amount);
+            } else {
+                // Get account balance due to defined cash flows
+                bd = uninvested_balance.clone();
+            }
 
             // Invest the account if a portfolio is defined
             if portfolio.is_some() {
@@ -128,6 +161,7 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
                 );
                 bd = bd_post_investment;
             }
+            prev.insert(account.name.clone(), bd.clone());
 
             // Update the results
             account_results.balances.push(AccountBalance::new(
@@ -158,7 +192,14 @@ mod tests {
         let scenario = Scenario {
             accounts: vec![InvestedAccount {
                 account: account,
-                portfolio: None,
+                portfolio: Some(Portfolio {
+                    assets: vec![Asset {
+                        name: "Equities".to_string(),
+                        mean_return: 0.07,
+                        std_dev: 0.15,
+                    }],
+                    weights: vec![1.0],
+                }),
             }],
             start_date: chrono::NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
             end_date: chrono::NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),

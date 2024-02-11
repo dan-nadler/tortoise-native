@@ -11,43 +11,68 @@ export type BalanceData = {
 export interface IBalanceData {
   data: BalanceData[];
   categories: string[];
+  max: Record<string, number>;
 }
 
 export const formatResultsForBalanceChart = (
   results: ScenarioResult,
+  invested: boolean,
 ): IBalanceData => {
-  
   // map of date to balances
   let balanceChartData: Record<string, BalanceData> = {};
-  // for each account, add the data to balanceChartData, creating a 
+  let max: Record<string, number> = {};
+
+  // for each account, add the data to balanceChartData, creating a
   // new entry for date if necessary
   for (const account in results) {
-    results[account].balances.forEach((balance) => {
+    max[account] = 0;
+
+    let series = results[account][invested ? "balances" : "uninvested_balances"];
+    
+    series.forEach((balance) => {
       if (!balanceChartData[balance.date]) {
         balanceChartData[balance.date] = { date: balance.date };
+        balanceChartData[balance.date] = { date: balance.date };
       }
+      
       balanceChartData[balance.date][account] = balance.balance;
+      
+      if (balance.balance > max[account]) {
+        max[account] = balance.balance;
+      }
+    });
+
+    let otherSeries = results[account][invested ? "uninvested_balances" : "balances"];
+    otherSeries.forEach((balance) => {
+      if (balance.balance > max[account]) {
+        max[account] = balance.balance;
+      }
     });
   }
 
   // convert balanceChartData to an array
   let balanceChartDataArray = Object.values(balanceChartData);
 
-  return {  
+  return {
     data: balanceChartDataArray,
-    categories: Object.keys(results)
+    categories: Object.keys(results),
+    max
   };
 };
 
-const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
-
-  const colors = Array.from(
-    { length: categories.length },
-    (_, index) => {
-      return ["emerald", "indigo", "fuchsia", "amber", "lime", "violet", "pink", "yellow"][index % 8];
-    },
-  );
-
+const BalanceChart: React.FC<IBalanceData> = ({ data, categories, max }) => {
+  const colors = Array.from({ length: categories.length }, (_, index) => {
+    return [
+      "emerald",
+      "indigo",
+      "fuchsia",
+      "amber",
+      "lime",
+      "violet",
+      "pink",
+      "yellow",
+    ][index % 8];
+  });
   return (
     <Card className="h-auto">
       <Title>Total Balance Over Time</Title>
@@ -58,10 +83,10 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
         index="date"
         stack={true}
         yAxisWidth={60}
+        maxValue={Object.values(max).reduce((a, b) => a + b, 0)}
         categories={categories}
         colors={colors}
         valueFormatter={valueFormatter}
-        
       />
     </Card>
   );
