@@ -74,7 +74,7 @@ pub async fn run_account_simulation(
         Some(p) => {
             Some(load_config::<sim::portfolio::Portfolio>(p).expect("Could not load portfolio"))
         }
-        None => None,
+        None => sim::portfolio::Portfolio::default(),
     };
 
     if !account.is_ok() {

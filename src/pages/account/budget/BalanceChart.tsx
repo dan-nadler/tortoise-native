@@ -1,10 +1,11 @@
 import React from "react";
-import { AreaChart, Card, Title } from "@tremor/react";
+import { AreaChart, Card, LineChart, Title } from "@tremor/react";
 import { valueFormatter } from "../../../common/ValueFormatter";
 import { SimulationResult } from "../../../rustTypes/SimulationResult";
 
 export type BalanceData = {
-  [x: string]: string | number;
+  Invested: string | number;
+  Uninvested: string | number;
   date: string;
 };
 
@@ -16,16 +17,31 @@ export interface IBalanceData {
 export const formatResultsForBalanceChart = (
   results: SimulationResult,
 ): IBalanceData => {
-  const balanceChartData = results.balances.map((balance) => {
-    return {
-      date: balance.date,
-      [balance.account_name]: balance.balance,
-    };
+  const balanceChartData: Partial<BalanceData>[] = results.balances.map(
+    (balance) => {
+      return {
+        date: balance.date,
+        Invested: balance.balance,
+      };
+    },
+  );
+
+  results.uninvested_balances.forEach((balance) => {
+    const date = balance.date;
+    const existing = balanceChartData.find((b) => b.date === date);
+    if (existing) {
+      existing.Uninvested = balance.balance;
+    } else {
+      balanceChartData.push({
+        date,
+        Uninvested: balance.balance,
+      });
+    }
   });
 
-  return {  
-    data: balanceChartData,
-    categories: [results.balances[0].account_name]
+  return {
+    data: balanceChartData as BalanceData[],
+    categories: ["Invested", "Uninvested"],
   };
 };
 
@@ -33,13 +49,13 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories }) => {
   return (
     <Card className="h-auto">
       <Title>Account Balance Over Time</Title>
-      <AreaChart
+      <LineChart
         showAnimation={true}
         data={data}
         index="date"
         yAxisWidth={60}
         categories={categories}
-        colors={["indigo"]}
+        colors={["indigo", "blue"]}
         valueFormatter={valueFormatter}
       />
     </Card>
