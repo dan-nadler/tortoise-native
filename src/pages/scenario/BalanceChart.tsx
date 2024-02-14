@@ -82,7 +82,7 @@ const BalanceChart: React.FC<IBalanceData> = ({ data, categories, max }) => {
         data={data}
         index="date"
         stack={true}
-        yAxisWidth={60}
+        yAxisWidth={70}
         maxValue={Object.values(max).reduce((a, b) => a + b, 0)}
         categories={categories}
         colors={colors}

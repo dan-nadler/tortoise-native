@@ -1,51 +1,73 @@
-import { Divider, Title } from "@tremor/react";
+import { Button } from "@tremor/react";
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { navContext } from "./common/NavProvider";
-
-const capitalizeFirstLetter = (s: string): string => {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
+import {
+  Square3Stack3DIcon,
+  Cog6ToothIcon,
+  InboxArrowDownIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
+import { useAccountSelectionStore } from "./pages/home/Store";
 
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation();
+  const navigate = useNavigate();
   const [auxButtons, setAuxButtons] = useState<React.ReactNode>(null);
-  const [_, ...pages] = location.pathname.split("/");
-  let titleClass = "font-light hover:opacity-80 active:opacity-70";
+  const { selectedAccounts } = useAccountSelectionStore();
 
   return (
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
       <div>
-        <nav className="flex flex-row justify-between">
-          <div className="flex w-1/3 flex-shrink flex-grow-0 flex-row">
-            <ul className="flex items-center space-x-2">
-              <li key="home">
-                <Link to="/">
-                  <Title className={titleClass}>Home</Title>
-                </Link>
-              </li>
-              {pages.map((p, i) => {
-                if (!p) return null;
-                return (
-                  <>
-                    <Title>//</Title>
-                    <li key={i}>
-                      <Link to={"/" + pages.slice(0, i + 1).join("/")}>
-                        <Title className={titleClass}>
-                          {capitalizeFirstLetter(p)}
-                        </Title>
-                      </Link>
-                    </li>
-                  </>
-                );
-              })}
-            </ul>
+        <div className="flex h-full flex-row">
+          <div className="bg-tremor h-full w-[75px] bg-slate-300 py-4 dark:bg-slate-950">
+            <div className="flex h-full flex-col justify-between">
+              <div className="flex flex-col justify-start gap-8 py-20">
+                <Button
+                  variant="light"
+                  icon={ChartBarIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="View Forecast"
+                  onClick={() => {
+                    const accounts = new URLSearchParams();
+                    accounts.append("accounts", selectedAccounts.join(","));
+                    navigate("/scenario?" + accounts.toString());
+                  }}
+                />
+                <Button
+                  color="slate"
+                  variant="light"
+                  icon={Square3Stack3DIcon}
+                  size="lg"
+                  tooltip="Manage Accounts"
+                  onClick={() => navigate("/")}
+                />
+                <Button
+                  variant="light"
+                  icon={InboxArrowDownIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="Import Accounts"
+                  onClick={() => null}
+                />
+                {auxButtons}
+              </div>
+              <div className="flex flex-col justify-end gap-4">
+                <Button
+                  variant="light"
+                  icon={Cog6ToothIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="Settings"
+                  onClick={() => null}
+                />
+              </div>
+            </div>
           </div>
-          {auxButtons}
-          <div className="w-1/3 flex-shrink flex-grow-0" />
-        </nav>
-        <Divider />
-        {children}
+          <div className="mx-4 flex w-full flex-col">
+            <div className="flex-grow">{children}</div>
+          </div>
+        </div>
       </div>
     </navContext.Provider>
   );

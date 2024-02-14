@@ -27,6 +27,7 @@ pub fn run() {
     startup_tasks();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .menu(|handle| {
             Menu::with_items(
                 handle,

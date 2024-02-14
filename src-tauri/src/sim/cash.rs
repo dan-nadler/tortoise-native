@@ -361,7 +361,7 @@ pub fn get_account_balance_at(
     let a = account.clone();
     let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples) + a.balance;
     let mut d = a.start_date;
-    
+
     while d <= date {
         b += a.flows_at(d).iter().fold(0.0, |acc, x| acc + x.amount);
         d = d.succ_opt().unwrap();

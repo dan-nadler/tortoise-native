@@ -11,7 +11,7 @@ import Home from "./pages/home/Main";
 
 const App: React.FC = () => {
   return (
-    <Grid className="min-h-dvh bg-tremor-background p-4 dark:bg-dark-tremor-background">
+    <Grid className="min-h-dvh bg-tremor-background dark:bg-dark-tremor-background">
       <MemoryRouter>
         <Nav>
           <Routes>

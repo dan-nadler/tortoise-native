@@ -176,10 +176,9 @@ pub async fn run_scenario_simulation(account_names: Vec<String>) -> Result<Value
     }
 
     let scenario =
-        sim::Scenario::from_accounts(accounts, start_date.unwrap(), end_date.unwrap(), 1);
-        
+        sim::Scenario::from_accounts(accounts, start_date.unwrap(), end_date.unwrap(), 100);
+
     let response = sim::run_simulation(scenario);
-    
 
     if !response.is_ok() {
         return Err("{\"error\": \"Error running simulation\"}".to_string());

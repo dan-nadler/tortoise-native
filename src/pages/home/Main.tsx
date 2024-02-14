@@ -15,39 +15,17 @@ import {
   TableHeaderCell,
   TableBody,
 } from "@tremor/react";
-import React, { useContext, useEffect, useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { ChartBarIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
 import { listAccountsDetail } from "../../api/account";
 import { Account } from "../../rustTypes/Account";
 import { valueFormatter } from "../../common/ValueFormatter";
 import { Link, useNavigate } from "react-router-dom";
-import { navContext } from "../../common/NavProvider";
-import { create } from "zustand";
+import { useAccountSelectionStore } from "./Store";
 
 interface AccountCardProps {
   account: Account;
 }
-
-type AccountSelectionStore = {
-  selectedAccounts: string[];
-  addAccount: (account: string) => void;
-  removeAccount: (account: string) => void;
-};
-
-export const useAccountSelectionStore = create<AccountSelectionStore>(
-  (set) => ({
-    selectedAccounts: [],
-    addAccount: (account) =>
-      set((state) => ({
-        selectedAccounts: [...state.selectedAccounts, account],
-      })),
-    removeAccount: (account) =>
-      set((state) => ({
-        selectedAccounts: state.selectedAccounts.filter((a) => a !== account),
-      })),
-  }),
-);
-
 const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isSelected, setIsSelected] = React.useState<boolean>(false);
@@ -178,27 +156,6 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   );
 };
 
-const RunScenarioButton: React.FC = () => {
-  const navigate = useNavigate();
-  const { selectedAccounts } = useAccountSelectionStore();
-
-  const accounts = new URLSearchParams();
-  accounts.append("accounts", selectedAccounts.join(","));
-
-  return (
-    <Button
-      variant="light"
-      icon={ChartBarIcon}
-      iconPosition="right"
-      onClick={() => {
-        navigate("/scenario?" + accounts.toString());
-      }}
-    >
-      Scenario Forecast
-    </Button>
-  );
-};
-
 const Home: React.FC = () => {
   const [accounts, setAccounts] = React.useState<Account[]>([]);
   useLayoutEffect(() => {
@@ -210,15 +167,6 @@ const Home: React.FC = () => {
       });
     }, 100);
   }, []);
-
-  const { setAuxButtons } = useContext(navContext);
-  useEffect(() => {
-    setAuxButtons && setAuxButtons(<RunScenarioButton />);
-
-    return () => {
-      setAuxButtons && setAuxButtons(null);
-    };
-  }, [setAuxButtons]);
 
   return (
     <div className="flex w-full flex-row flex-wrap">
