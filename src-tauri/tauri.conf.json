@@ -18,7 +18,8 @@
         "height": 720,
         "resizable": true,
         "title": "The Tortoise",
-        "width": 1440
+        "width": 1440,
+        "label": "main"
       }
     ],
     "withGlobalTauri": false
