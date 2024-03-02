@@ -5,12 +5,12 @@ import { navContext } from "./common/NavProvider";
 import {
   Square3Stack3DIcon,
   Cog6ToothIcon,
-  InboxArrowDownIcon,
+  // InboxArrowDownIcon,
   ChartBarIcon,
 } from "@heroicons/react/24/outline";
-import { useAccountSelectionStore } from "./pages/home/Store";
-import { open } from "@tauri-apps/plugin-dialog";
-import { importAccount } from "./api/import";
+import { useAccountSelectionStore } from "./pages/main/home/Store";
+// import { open } from "@tauri-apps/plugin-dialog";
+// import { importAccount } from "./api/import";
 
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   icon={ChartBarIcon}
                   color="slate"
                   size="lg"
-                  tooltip="View Forecast"
+                  tooltip="Combined Forecast"
                   onClick={() => {
                     const accounts = new URLSearchParams();
                     accounts.append("accounts", selectedAccounts.join(","));
@@ -44,7 +44,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   tooltip="Manage Accounts"
                   onClick={() => navigate("/")}
                 />
-                <Button
+                {/* <Button
                   variant="light"
                   icon={InboxArrowDownIcon}
                   color="slate"
@@ -55,7 +55,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     const file = await open();
                     file && (await importAccount(file.path));
                   }}
-                />
+                /> */}
                 {auxButtons}
               </div>
               <div className="flex flex-col justify-end gap-4">

@@ -7,13 +7,13 @@ import {
   Divider,
 } from "@tremor/react";
 import React, { useEffect } from "react";
-import { useAccountStore } from "../../store/Account";
+import { useAccountStore } from "../../../store/Account";
 import { useParams, useNavigate } from "react-router-dom";
-import MyNumberInput from "../../common/NumberInput";
+import MyNumberInput from "../../../common/NumberInput";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import MyTagsInput from "../../common/TagsInput";
-import { Frequency } from "../../rustTypes/Frequency";
-import { saveAccount } from "../../api/account";
+import MyTagsInput from "../../../common/TagsInput";
+import { Frequency } from "../../../rustTypes/Frequency";
+import { saveAccount } from "../../../api/account";
 
 const CashFlowForm: React.FC = () => {
   const navigate = useNavigate();

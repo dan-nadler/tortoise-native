@@ -1,13 +1,16 @@
 use serde_json::{json, Value};
+use std::sync::Mutex;
+
+static FILE_PATH: Mutex<Option<String>> = Mutex::new(None);
 
 #[tauri::command]
 pub async fn import_account(file_path: &str, handle: tauri::AppHandle) -> Result<Value, String> {
-    println!("Importing account from {}", file_path);
+    *FILE_PATH.lock().unwrap() = Some(file_path.to_string());
 
     let window = tauri::WebviewWindowBuilder::new(
         &handle,
         "import-account",
-        tauri::WebviewUrl::App("index.html".into()),
+        tauri::WebviewUrl::App("import.html".into()),
     )
     .title("Import Account")
     .inner_size(1080., 720.)
@@ -21,4 +24,9 @@ pub async fn import_account(file_path: &str, handle: tauri::AppHandle) -> Result
     }
 
     Ok(json!("{\"status\": \"ok\"}"))
+}
+
+#[tauri::command]
+pub async fn get_file_path() -> Result<Value, String> {
+    Ok(json!(*FILE_PATH.lock().unwrap()))
 }

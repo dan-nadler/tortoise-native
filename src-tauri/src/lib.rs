@@ -28,6 +28,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .menu(|handle| {
             Menu::with_items(
                 handle,
@@ -65,6 +66,7 @@ pub fn run() {
             api::sim::delete_account,
 
             api::import::import_account,
+            api::import::get_file_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -2,7 +2,7 @@
   "$schema": "./schemas/macOS-schema.json",
   "identifier": "main-capability",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": ["main", "import-account"],
   "permissions": [
     "path:default",
     "event:default",
@@ -12,6 +12,7 @@
     "menu:default",
     "tray:default",
     "window:allow-set-title",
-    "dialog:allow-open"
+    "dialog:allow-open",
+    "fs:allow-app-read"
   ]
 }

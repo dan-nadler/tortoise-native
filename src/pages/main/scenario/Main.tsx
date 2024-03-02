@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ScenarioResult, runScenarioSimulation } from "../../api/sim";
+import { ScenarioResult, runScenarioSimulation } from "../../../api/sim";
 import { Button, Switch } from "@tremor/react";
 import BalanceChart, { formatResultsForBalanceChart } from "./BalanceChart";
 

@@ -14,13 +14,13 @@ import {
   Dialog,
   DialogPanel,
 } from "@tremor/react";
-import { useAccountStore } from "../../store/Account";
-import { CashFlow } from "../../rustTypes/CashFlow";
+import { useAccountStore } from "../../../store/Account";
+import { CashFlow } from "../../../rustTypes/CashFlow";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { deleteAccount, getAccount, saveAccount } from "../../api/account";
-import { navContext } from "../../common/NavProvider";
-import Tag from "../../common/Tag";
+import { deleteAccount, getAccount, saveAccount } from "../../../api/account";
+import { navContext } from "../../../common/NavProvider";
+import Tag from "../../../common/Tag";
 import { useDebouncedCallback } from "use-debounce";
 
 const frequencyToShortString = (frequency: string): string => {
@@ -195,7 +195,6 @@ const Main: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [searchParams, _] = useSearchParams();
   const navigate = useNavigate();
-  const { setAuxButtons } = useContext(navContext);
   const [deleteIsOpen, setDeleteIsOpen] = React.useState(false);
 
   useLayoutEffect(() => {
@@ -224,26 +223,6 @@ const Main: React.FC = () => {
     return () => {
       unsub();
       save.flush();
-    };
-  }, []);
-
-  useEffect(() => {
-    setAuxButtons &&
-      setAuxButtons(
-        <Button
-          type="reset"
-          color={"gray"}
-          variant="secondary"
-          onClick={() => {
-            state.reset();
-            state.setName("New Scenario");
-          }}
-        >
-          New
-        </Button>,
-      );
-    return () => {
-      setAuxButtons && setAuxButtons(null);
     };
   }, []);
 

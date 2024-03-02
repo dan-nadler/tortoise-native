@@ -1,13 +1,13 @@
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import Budget from "./pages/account/budget/Main";
-import Retirement from "./pages/retirement/Main";
+import Budget from "./pages/main/account/budget/Main";
+import Retirement from "./pages/main/retirement/Main";
 import Nav from "./Nav";
-import Account from "./pages/account/Main";
-import CashFlowForm from "./pages/account/CashFlow";
-import Scenario from "./pages/scenario/Main";
+import Account from "./pages/main/account/Main";
+import CashFlowForm from "./pages/main/account/CashFlow";
+import Scenario from "./pages/main/scenario/Main";
 import { Grid } from "@tremor/react";
-import Home from "./pages/home/Main";
+import Home from "./pages/main/home/Main";
 
 const App: React.FC = () => {
   return (
