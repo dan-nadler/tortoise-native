@@ -16,22 +16,47 @@ import {
   TableBody,
 } from "@tremor/react";
 import React, { useEffect, useLayoutEffect } from "react";
-import { ChartBarIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import {
+  ChartBarIcon,
+  Cog6ToothIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 import { listAccountsDetail, saveAccount } from "../../../api/account";
 import { Account } from "../../../rustTypes/Account";
 import { valueFormatter } from "../../../common/ValueFormatter";
 import { Link, useNavigate } from "react-router-dom";
 import { useAccountSelectionStore } from "./Store";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 interface AccountCardProps {
   account: Account;
-  createNew?: boolean;
 }
-const AccountCard: React.FC<AccountCardProps> = ({
-  account,
-  createNew = false,
-}) => {
+
+const CreateAccountCard: React.FC<AccountCardProps> = ({ account }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex w-full justify-center p-1 md:w-1/2 lg:w-4/12 xl:w-3/12">
+      <Button
+        className={`flex-grow border-slate-200 hover:bg-slate-200
+        active:bg-tremor-background-subtle dark:border-slate-800
+        hover:dark:bg-slate-800 active:dark:bg-dark-tremor-background-subtle`}
+        variant="secondary"
+        icon={PlusIcon}
+        color="slate"
+        onClick={() => {
+          saveAccount(account).then(() => {
+            navigate(`/account/${account.name}`);
+          });
+        }}
+      >
+        Create New Scenario
+      </Button>
+    </div>
+  );
+};
+
+const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [isSelected, setIsSelected] = React.useState<boolean>(false);
   const { name, cash_flows } = account;
@@ -50,13 +75,6 @@ const AccountCard: React.FC<AccountCardProps> = ({
       <Card
         decoration={isSelected && "left"}
         onClick={() => {
-          if (createNew) {
-            saveAccount(account).then(() => {
-              navigate(`/account/${account.name}`);
-            });
-            return;
-          }
-
           setIsSelected(!isSelected);
           if (isSelected) {
             removeAccount(name);
@@ -185,15 +203,14 @@ const Home: React.FC = () => {
       {accounts.map((account, i) => (
         <AccountCard account={account} key={i} />
       ))}
-      <AccountCard
+      <CreateAccountCard
         account={{
-          name: "Create a New Scenario",
+          name: "New Scenario",
           balance: 0,
           cash_flows: [],
           start_date: dayjs().format("YYYY-MM-DD"),
           end_date: dayjs().format("YYYY-MM-DD"),
         }}
-        createNew={true}
         key={accounts.length + 1}
       />
     </div>

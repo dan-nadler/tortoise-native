@@ -1,4 +1,4 @@
-import { Button } from "@tremor/react";
+import { Button, Divider } from "@tremor/react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { navContext } from "./common/NavProvider";
@@ -21,7 +21,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
       <div>
         <div className="flex h-full flex-row">
-          <div className="bg-tremor h-full w-[75px] bg-slate-300 py-4 dark:bg-slate-950">
+          <div className="bg-tremor h-full w-[75px] py-4 -mr-2">
             <div className="flex h-full flex-col justify-between">
               <div className="flex flex-col justify-start gap-8">
                 <Button
@@ -71,7 +71,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </div>
           <div className="flex w-full flex-col p-2">
-            <div className="flex-grow">{children}</div>
+            <div className="flex-grow border-l pl-2">{children}</div>
           </div>
         </div>
       </div>

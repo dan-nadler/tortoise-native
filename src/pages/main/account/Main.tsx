@@ -19,7 +19,6 @@ import { CashFlow } from "../../../rustTypes/CashFlow";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { deleteAccount, getAccount, saveAccount } from "../../../api/account";
-import { navContext } from "../../../common/NavProvider";
 import Tag from "../../../common/Tag";
 import { useDebouncedCallback } from "use-debounce";
 
