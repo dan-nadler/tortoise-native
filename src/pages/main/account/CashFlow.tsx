@@ -106,7 +106,7 @@ const CashFlowForm: React.FC = () => {
           </div>
           <div className="flex flex-row flex-wrap gap-2">
             <div className="flex-grow-[10]">
-              <Text>Amount</Text>
+              <Text>Amount (Annually)</Text>
               <MyNumberInput
                 min={undefined}
                 max={undefined}
@@ -123,7 +123,9 @@ const CashFlowForm: React.FC = () => {
                 <Text>Frequency</Text>
                 <Select
                   value={cash_flows[i].frequency ?? "MonthStart"}
-                  onValueChange={(e) => setCashFlowFrequency(i, e as Frequency)}
+                  onValueChange={(e) => {
+                    setCashFlowFrequency(i, e as Frequency);
+                  }}
                 >
                   <SelectItem value="Once">Once</SelectItem>
                   <SelectItem value="MonthStart">Month Start</SelectItem>

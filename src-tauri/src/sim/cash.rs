@@ -171,7 +171,7 @@ impl CashFlow {
         let mut d = start_date.pred_opt().unwrap();
         let mut payments: Vec<Payment> = vec![];
 
-        // If tax payments have been requests, but the tax rate is 0, return an empty vec
+        // If tax payments have been requested, but the tax rate is 0, return an empty vec because there are no tax payments.
         if tax_payments && self.tax_rate == 0.0 {
             return payments;
         }
@@ -180,12 +180,14 @@ impl CashFlow {
             d = d.succ_opt().unwrap();
 
             if self.frequency.matches(&d, &self.start_date, &self.end_date) {
+                let deannualized_amount = self.amount * self.frequency.fraction();
+
                 let mut p = Payment::new(
                     d,
                     if tax_payments {
-                        self.amount * -self.tax_rate
+                        deannualized_amount * -self.tax_rate
                     } else {
-                        self.amount
+                        deannualized_amount
                     },
                     self.clone(),
                 );
