@@ -1,12 +1,13 @@
-import { Button, Divider } from "@tremor/react";
+import { Button } from "@tremor/react";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { navContext } from "./common/NavProvider";
 import {
   Square3Stack3DIcon,
   Cog6ToothIcon,
   // InboxArrowDownIcon,
   ChartBarIcon,
+  PresentationChartLineIcon,
 } from "@heroicons/react/24/outline";
 import { useAccountSelectionStore } from "./pages/main/home/Store";
 // import { open } from "@tauri-apps/plugin-dialog";
@@ -16,17 +17,39 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [auxButtons, setAuxButtons] = useState<React.ReactNode>(null);
   const { selectedAccounts } = useAccountSelectionStore();
+  const l = useLocation();
 
   return (
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
       <div>
         <div className="flex h-full flex-row">
-          <div className="bg-tremor h-full w-[75px] py-4 -mr-2">
+          <div className="bg-tremor -mr-2 h-full w-[75px] py-4">
             <div className="flex h-full flex-col justify-between">
               <div className="flex flex-col justify-start gap-8">
                 <Button
                   variant="light"
-                  icon={ChartBarIcon}
+                  icon={
+                    l.pathname.startsWith("/account/budget")
+                      ? Cog6ToothIcon
+                      : ChartBarIcon
+                  }
+                  color="slate"
+                  size="lg"
+                  tooltip="Account Forecast"
+                  disabled={!l.pathname.startsWith("/account")}
+                  onClick={() => {
+                    l.pathname.startsWith("/account/budget")
+                      ? navigate(
+                          l.pathname.replace("/account/budget", "/account"),
+                        )
+                      : navigate(
+                          l.pathname.replace("/account", "/account/budget"),
+                        );
+                  }}
+                />
+                <Button
+                  variant="light"
+                  icon={PresentationChartLineIcon}
                   color="slate"
                   size="lg"
                   tooltip="Combined Forecast"

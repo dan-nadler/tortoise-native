@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import {
   Text,
   TextInput,
@@ -17,7 +17,7 @@ import {
 import { useAccountStore } from "../../../store/Account";
 import { CashFlow } from "../../../rustTypes/CashFlow";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { PlusIcon } from "@heroicons/react/24/solid";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { deleteAccount, getAccount, saveAccount } from "../../../api/account";
 import Tag from "../../../common/Tag";
 import { useDebouncedCallback } from "use-debounce";
@@ -155,37 +155,55 @@ const CashFlowCard: React.FC<{
 
 const CashFlowCards: React.FC = () => {
   const { cash_flows, addCashFlow, name } = useAccountStore();
+  const [filter, setFilter] = React.useState("");
   const navigate = useNavigate();
 
   return (
-    <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
-      {cash_flows.map((item, i) => (
-        <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
-      ))}
-      <Card
-        className={`flex cursor-pointer flex-col flex-wrap py-4 
+    <div className="flex flex-col gap-4">
+      <TextInput
+        icon={MagnifyingGlassIcon}
+        placeholder="Filter Cash Flows"
+        onChange={(e) => setFilter(e.target.value)}
+      />
+      <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
+        {cash_flows
+          .filter((item) =>
+            filter
+              .split(" ")
+              .every(
+                (f) =>
+                  item.name?.toLowerCase().includes(f.toLocaleLowerCase()) ||
+                  item.tags?.some((t) => ("#" + t).toLowerCase().includes(f.toLocaleLowerCase())),
+              ),
+          )
+          .map((item, i) => (
+            <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
+          ))}
+        <Card
+          className={`flex cursor-pointer flex-col flex-wrap py-4 
         hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
-        color="gray"
-        onClick={() => {
-          addCashFlow({
-            name: "New Cash Flow",
-            amount: 0,
-            frequency: "MonthStart",
-            tax_rate: 0,
-            start_date: null,
-            end_date: null,
-            tags: [],
-          });
-          navigate(`/account/${name}/${cash_flows.length}`);
-        }}
-      >
-        <div className="m-auto flex h-full flex-row items-center">
-          <Icon icon={PlusIcon} color="slate" size="lg" />
-          <Title color={"slate"}>Add Cash Flow</Title>
-        </div>
-      </Card>
-    </Grid>
+          color="gray"
+          onClick={() => {
+            addCashFlow({
+              name: "New Cash Flow",
+              amount: 0,
+              frequency: "MonthStart",
+              tax_rate: 0,
+              start_date: null,
+              end_date: null,
+              tags: [],
+            });
+            navigate(`/account/${name}/${cash_flows.length}`);
+          }}
+        >
+          <div className="m-auto flex h-full flex-row items-center">
+            <Icon icon={PlusIcon} color="slate" size="lg" />
+            <Title color={"slate"}>Add Cash Flow</Title>
+          </div>
+        </Card>
+      </Grid>
+    </div>
   );
 };
 
@@ -233,7 +251,7 @@ const Main: React.FC = () => {
         <CashFlowCards />
         <Divider>Danger</Divider>
         <Button
-          className="w-full max-w-[720px] m-auto"
+          className="m-auto w-full max-w-[720px]"
           disabled={!name}
           color="red"
           onClick={() => setDeleteIsOpen(!deleteIsOpen)}
