@@ -1,17 +1,22 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SimulationResult } from "../rustTypes/SimulationResult";
 
-export interface ScenarioResult {
-  [scenario: string]: SimulationResult;
-};
+export type ScenarioResult = Record<string, SimulationResult>;
 
-export const getResults = async (
+export const runAccountSimulation = async (
   accountName: string,
   portfolioFilename?: string,
 ): Promise<ScenarioResult> => {
-  return invoke<ScenarioResult>("get_results", {
+  return invoke<ScenarioResult>("run_account_simulation", {
     accountName,
     portfolioFilename: portfolioFilename || null,
   });
 };
 
+export const runScenarioSimulation = async (
+  accountNames: string[],
+): Promise<ScenarioResult> => {
+  return invoke<ScenarioResult>("run_scenario_simulation", {
+    accountNames,
+  });
+};

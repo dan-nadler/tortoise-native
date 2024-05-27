@@ -27,6 +27,8 @@ pub fn run() {
     startup_tasks();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .menu(|handle| {
             Menu::with_items(
                 handle,
@@ -53,12 +55,18 @@ pub fn run() {
             )
         })
         .invoke_handler(tauri::generate_handler![
-            api::get_results,
-            api::list_available_scenarios,
-            api::list_available_portfolios,
-            api::get_cash_flows_from_config,
-            api::get_account_config,
-            api::save_account_config
+            api::sim::run_account_simulation,
+            api::sim::run_scenario_simulation,
+            api::sim::list_available_accounts,
+            api::sim::list_available_accounts_detail,
+            api::sim::list_available_portfolios,
+            api::sim::get_cash_flows_from_config,
+            api::sim::get_account_config,
+            api::sim::save_account_config,
+            api::sim::delete_account,
+
+            api::import::import_account,
+            api::import::get_file_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

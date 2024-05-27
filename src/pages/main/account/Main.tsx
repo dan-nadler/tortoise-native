@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import {
   Text,
   TextInput,
   Card,
-  Badge,
   Grid,
   BadgeDelta,
   Flex,
@@ -12,13 +11,16 @@ import {
   Divider,
   Icon,
   NumberInput,
+  Dialog,
+  DialogPanel,
 } from "@tremor/react";
-import { useAccountStore } from "../store/Account";
-import { CashFlow } from "../rustTypes/CashFlow";
-import { useNavigate, useParams } from "react-router-dom";
-import { PlusIcon } from "@heroicons/react/24/solid";
-import { getAccount, listAccounts } from "../api/account";
-import { navContext } from "../common/NavProvider";
+import { useAccountStore } from "../../../store/Account";
+import { CashFlow } from "../../../rustTypes/CashFlow";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { deleteAccount, getAccount, saveAccount } from "../../../api/account";
+import Tag from "../../../common/Tag";
+import { useDebouncedCallback } from "use-debounce";
 
 const frequencyToShortString = (frequency: string): string => {
   switch (frequency) {
@@ -103,7 +105,7 @@ const CashFlowCard: React.FC<{
       hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
       color="neutral"
-      onClick={() => navigate(`/scenario/${scenarioName}/${i}`)}
+      onClick={() => navigate(`/account/${scenarioName}/${i}`)}
     >
       <Flex
         justifyContent="between"
@@ -145,7 +147,7 @@ const CashFlowCard: React.FC<{
         alignItems="end"
         className="flex-grow gap-2"
       >
-        {item.tags?.map((tag, i) => <Badge key={i}>{tag}</Badge>)}
+        {item.tags?.map((tag, i) => <Tag key={i} tag={tag} />)}
       </Flex>
     </Card>
   );
@@ -153,74 +155,92 @@ const CashFlowCard: React.FC<{
 
 const CashFlowCards: React.FC = () => {
   const { cash_flows, addCashFlow, name } = useAccountStore();
+  const [filter, setFilter] = React.useState("");
   const navigate = useNavigate();
 
   return (
-    <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
-      {cash_flows.map((item, i) => (
-        <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
-      ))}
-      <Card
-        className={`flex cursor-pointer flex-col flex-wrap py-4 
+    <div className="flex flex-col gap-4">
+      <TextInput
+        icon={MagnifyingGlassIcon}
+        placeholder="Filter Cash Flows"
+        onChange={(e) => setFilter(e.target.value)}
+      />
+      <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
+        {cash_flows
+          .filter((item) =>
+            filter
+              .split(" ")
+              .every(
+                (f) =>
+                  item.name?.toLowerCase().includes(f.toLocaleLowerCase()) ||
+                  item.tags?.some((t) => ("#" + t).toLowerCase().includes(f.toLocaleLowerCase())),
+              ),
+          )
+          .map((item, i) => (
+            <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
+          ))}
+        <Card
+          className={`flex cursor-pointer flex-col flex-wrap py-4 
         hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
-        color="gray"
-        onClick={() => {
-          addCashFlow({
-            name: "New Cash Flow",
-            amount: 0,
-            frequency: "MonthStart",
-            tax_rate: 0,
-            start_date: null,
-            end_date: null,
-            tags: [],
-          });
-          navigate(`/scenario/${name}/${cash_flows.length}`);
-        }}
-      >
-        <div className="m-auto flex h-full flex-row items-center">
-          <Icon icon={PlusIcon} color="slate" size="lg" />
-          <Title color={"slate"}>Add Cash Flow</Title>
-        </div>
-      </Card>
-    </Grid>
+          color="gray"
+          onClick={() => {
+            addCashFlow({
+              name: "New Cash Flow",
+              amount: 0,
+              frequency: "MonthStart",
+              tax_rate: 0,
+              start_date: null,
+              end_date: null,
+              tags: [],
+            });
+            navigate(`/account/${name}/${cash_flows.length}`);
+          }}
+        >
+          <div className="m-auto flex h-full flex-row items-center">
+            <Icon icon={PlusIcon} color="slate" size="lg" />
+            <Title color={"slate"}>Add Cash Flow</Title>
+          </div>
+        </Card>
+      </Grid>
+    </div>
   );
 };
 
 const Main: React.FC = () => {
-  const [_, setAvailableScenarios] = useState<string[]>([]);
   const state = useAccountStore();
   const { name } = useParams<{ name: string }>();
-  const { setAuxButtons } = useContext(navContext);
+  const [searchParams, _] = useSearchParams();
+  const navigate = useNavigate();
+  const [deleteIsOpen, setDeleteIsOpen] = React.useState(false);
 
-  useEffect(() => {
-    setAuxButtons &&
-      setAuxButtons(
-        <Button
-          type="reset"
-          color={"gray"}
-          variant="secondary"
-          onClick={() => {
-            state.reset();
-            state.setName("New Scenario");
-          }}
-        >
-          New
-        </Button>,
-      );
-    return () => {
-      setAuxButtons && setAuxButtons(null);
-    };
-  }, []);
-
-  useEffect(() => {
-    listAccounts().then(setAvailableScenarios);
-
+  useLayoutEffect(() => {
     if (name) {
-      getAccount(name).then((a) => {
-        state.setAll(a);
-      });
+      getAccount(name)
+        .then((a) => {
+          state.setAll(a);
+        })
+        .then(() => {
+          if (searchParams.has("next")) {
+            let i = searchParams.get("next");
+            if (i) navigate(`/account/${name}/${i}`);
+          }
+        });
     }
+  }, [name]);
+
+  // Save every `timeout` seconds at most. Otherwise, will save on unmount due to the `flush` call in the cleanup function.
+  let save = useDebouncedCallback((state) => {
+    saveAccount(state);
+  }, 30_000);
+
+  useEffect(() => {
+    let unsub = useAccountStore.subscribe(save);
+
+    return () => {
+      unsub();
+      save.flush();
+    };
   }, []);
 
   return (
@@ -229,6 +249,52 @@ const Main: React.FC = () => {
         <AccountForm />
         <Divider>Cash Flows</Divider>
         <CashFlowCards />
+        <Divider>Danger</Divider>
+        <Button
+          className="m-auto w-full max-w-[720px]"
+          disabled={!name}
+          color="red"
+          onClick={() => setDeleteIsOpen(!deleteIsOpen)}
+        >
+          Delete
+        </Button>
+        <Dialog
+          open={deleteIsOpen}
+          onClose={() => setDeleteIsOpen(false)}
+          static={true}
+          className="z-[100]"
+        >
+          <DialogPanel className="flex max-w-lg flex-col">
+            <Title>Are you sure you want to delete this account?</Title>
+            <Divider />
+            <div className="flex flex-row">
+              <Button
+                variant="primary"
+                size="xl"
+                color="red"
+                className="mx-auto flex items-center"
+                onClick={() =>
+                  deleteAccount(name!).then(() => {
+                    state.reset();
+                    save.cancel();
+                    navigate("/");
+                  })
+                }
+              >
+                Delete
+              </Button>
+              <Button
+                variant="secondary"
+                color="slate"
+                size="xl"
+                className="mx-auto flex items-center"
+                onClick={() => setDeleteIsOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogPanel>
+        </Dialog>
       </div>
     </div>
   );

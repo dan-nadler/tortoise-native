@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { SimulationResult } from "../rustTypes/SimulationResult";
+import { SimulationResult } from "../../../../rustTypes/SimulationResult";
 import BalanceChart, {
   IBalanceData,
   formatResultsForBalanceChart,
@@ -9,11 +9,11 @@ import CashFlowsChart, {
   formatResultsForCashFlowChart,
 } from "./CashFlowsChart";
 import CashFlowList from "./CashFlowList";
-import { CashFlow } from "../rustTypes/CashFlow";
-import { getResults } from "../api/sim";
-import { getCashFlowsFromConfig, listAccounts } from "../api/account";
+import { CashFlow } from "../../../../rustTypes/CashFlow";
+import { runAccountSimulation } from "../../../../api/sim";
+import { getCashFlowsFromConfig, listAccounts } from "../../../../api/account";
 import { Button } from "@tremor/react";
-import { useSelectedScenarioStore } from "../common/Select";
+import { useParams } from "react-router-dom";
 
 // The cash flow chart has performance issues with the number of items that can be
 // displayed. This is used to isolate the issue to the component so that the entire
@@ -22,6 +22,8 @@ import { useSelectedScenarioStore } from "../common/Select";
 const MemoCashFlowChart = memo(CashFlowsChart);
 
 const Main: React.FC = () => {
+  const { name } = useParams<{ name: string }>();
+
   const [budgetResults, setBudgetResults] = useState<SimulationResult | null>(
     null,
   );
@@ -42,7 +44,7 @@ const Main: React.FC = () => {
     try {
       const startTime = performance.now();
 
-      let r = await getResults(scenario);
+      let r = await runAccountSimulation(scenario);
       let j = r[scenario];
       let cf = await getCashFlowsFromConfig(scenario);
 
@@ -78,11 +80,9 @@ const Main: React.FC = () => {
     listAccounts().then(setAvailableScenarios);
   }, []);
 
-  const { selectedScenario } = useSelectedScenarioStore();
-
   useEffect(() => {
-    if (selectedScenario) budget(selectedScenario);
-  }, [selectedScenario]);
+    if (name) budget(name);
+  }, [name]);
 
   return (
     <div>

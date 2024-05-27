@@ -171,7 +171,7 @@ impl CashFlow {
         let mut d = start_date.pred_opt().unwrap();
         let mut payments: Vec<Payment> = vec![];
 
-        // If tax payments have been requests, but the tax rate is 0, return an empty vec
+        // If tax payments have been requested, but the tax rate is 0, return an empty vec because there are no tax payments.
         if tax_payments && self.tax_rate == 0.0 {
             return payments;
         }
@@ -180,12 +180,14 @@ impl CashFlow {
             d = d.succ_opt().unwrap();
 
             if self.frequency.matches(&d, &self.start_date, &self.end_date) {
+                let deannualized_amount = self.amount * self.frequency.fraction();
+
                 let mut p = Payment::new(
                     d,
                     if tax_payments {
-                        self.amount * -self.tax_rate
+                        deannualized_amount * -self.tax_rate
                     } else {
-                        self.amount
+                        deannualized_amount
                     },
                     self.clone(),
                 );
@@ -231,6 +233,10 @@ impl Account {
 
     pub fn fs_name(&self) -> String {
         self.name.clone()
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
     }
 
     pub fn default() -> Account {
@@ -357,7 +363,7 @@ pub fn get_account_balance_at(
     let a = account.clone();
     let mut b: Array1<f64> = Array1::<f64>::zeros(num_samples) + a.balance;
     let mut d = a.start_date;
-    
+
     while d <= date {
         b += a.flows_at(d).iter().fold(0.0, |acc, x| acc + x.amount);
         d = d.succ_opt().unwrap();
@@ -373,7 +379,7 @@ fn test_get_account_balance_at() {
         0.0,
         vec![CashFlow::new(
             Some("Test Cash Flow".to_string()),
-            100.0,
+            1200.0,
             Some(Frequency::MonthStart),
             None,
             None,

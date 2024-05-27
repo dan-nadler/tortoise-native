@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import Select from "../common/Select";
+import Select from "../../../common/Select";
 import { Button } from "@tremor/react";
-import { listAccounts } from "../api/account";
-import { listPortfolios } from "../api/portfolio";
+import { listAccounts } from "../../../api/account";
+import { listPortfolios } from "../../../api/portfolio";
 
 const Main: React.FC = () => {
     const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);

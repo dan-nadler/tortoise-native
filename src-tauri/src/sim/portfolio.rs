@@ -19,7 +19,7 @@ use ts_rs::TS;
 ///
 /// let asset = Asset::new("Asset1".to_string(), 0.1, 0.05);
 /// ```
-#[derive(Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct Asset {
     pub name: String,
@@ -54,7 +54,7 @@ impl Asset {
 /// let weights = vec![0.5, 0.5];
 /// let portfolio = Portfolio::new(assets, weights);
 /// ```
-#[derive(Serialize, Deserialize, JsonSchema, Clone, TS)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, TS)]
 #[ts(export, export_to = "../src/rustTypes/")]
 pub struct Portfolio {
     pub assets: Vec<Asset>,
@@ -64,6 +64,17 @@ pub struct Portfolio {
 impl Portfolio {
     pub fn new(assets: Vec<Asset>, weights: Vec<f64>) -> Portfolio {
         Portfolio { assets, weights }
+    }
+
+    pub fn default() -> Option<Portfolio> {
+        Some(Portfolio {
+            assets: vec![Asset {
+                name: "Equities".to_string(),
+                mean_return: 0.07,
+                std_dev: 0.15,
+            }],
+            weights: vec![1.0],
+        })
     }
 }
 
@@ -114,7 +125,6 @@ impl Invest for Account {
         for (a, w) in it {
             ret = ret + self.invest_asset(a, w, nsamples, period);
         }
-
         starting_balance.clone() * (1.0 + ret)
     }
 

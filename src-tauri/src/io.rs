@@ -1,8 +1,11 @@
 use crate::sim::cash::Account;
 use std::ffi::OsStr;
 use std::fs;
+use std::io;
+use serde::de::Error;
+// TODO: replace with Tauri's FS or another store
+use serde_yaml;
 use std::path::PathBuf;
-
 
 fn save_dir() -> PathBuf {
     dirs::config_dir()
@@ -40,6 +43,11 @@ pub fn get_or_create_accounts_save_dir() -> PathBuf {
     }
 }
 
+/// Generates a timestamp-based version string.
+///
+/// This function uses the current local time to generate a version string in the format
+/// "YYYYMMDD_HHMMSS". The version string can be used to uniquely identify a specific version
+/// of an account file.
 fn get_next_version() -> String {
     let now = chrono::Local::now();
     let version = now.format("%Y%m%d_%H%M%S").to_string();
@@ -47,6 +55,9 @@ fn get_next_version() -> String {
 }
 
 pub fn write_account_file(account: &Account) {
+    // TODO: This results in a lot of config files being created. We should probably
+    // cull older files so that the X most recent are kept, followed by Y daily, and
+    // Z monthly, etc.
     let dir = get_or_create_accounts_save_dir();
     let fsn = &account.fs_name().clone();
 
@@ -86,11 +97,19 @@ pub fn list_accounts() -> Vec<String> {
             }
         }
     }
-
     account_names
 }
 
-fn get_latest_account_version(account_name: &str) -> Option<String> {
+pub fn list_accounts_detail() -> Vec<Account> {
+    let accounts: Vec<String> = list_accounts();
+    let mut account_details = Vec::new();
+    for account in accounts.iter() {
+        account_details.push(read_account(&account).unwrap());
+    }
+    account_details
+}
+
+fn get_latest_account_version(account_name: &str) -> Result<String, io::Error> {
     let dir = get_or_create_accounts_save_dir();
     let account_folder = dir.join(account_name);
 
@@ -111,15 +130,22 @@ fn get_latest_account_version(account_name: &str) -> Option<String> {
     }
 
     versions.sort();
-    versions.last().cloned()
+    versions.last().cloned().ok_or(std::io::Error::new(
+        io::ErrorKind::NotFound,
+        "No versions found",
+    ))
 }
 
 pub fn read_account(account_name: &str) -> Result<Account, serde_yaml::Error> {
     let dir = get_or_create_accounts_save_dir();
     let account_folder = dir.join(account_name);
 
-    let latest_version = get_latest_account_version(account_name).expect("No account found");
-    let account_path = account_folder.join(latest_version);
+    let latest_version = get_latest_account_version(account_name);
+    if latest_version.is_err() {
+        return Err(serde_yaml::Error::custom("No versions found"));
+    }
+
+    let account_path = account_folder.join(latest_version.unwrap());
 
     let account_str =
         fs::read_to_string(account_path).expect("Could not read account file to string");
@@ -127,8 +153,24 @@ pub fn read_account(account_name: &str) -> Result<Account, serde_yaml::Error> {
     serde_yaml::from_str(&account_str)
 }
 
-#[test]
-fn read_example_config() {
-    let account = read_account("example");
-    assert_eq!(account.unwrap().name, "Example");
+pub fn delete_account(account_name: &str) -> Result<(), std::io::Error> {
+    let dir = get_or_create_accounts_save_dir();
+    let account_folder = dir.join(account_name);
+
+    let deleted_folder = dir.join(".deleted").join(account_name);
+    std::fs::create_dir_all(&deleted_folder).expect("Could not create deleted folder");
+    // move the account files to the deleted folder
+
+    for entry in fs::read_dir(&account_folder)?.into_iter() {
+        let entry = entry?;
+        let path = entry.path();
+        let file_name = path.file_name().unwrap().to_str().unwrap();
+        let deleted_path = deleted_folder.join(file_name);
+        fs::rename(path, deleted_path)?;
+    }
+
+    // delete main account folder
+    fs::remove_dir_all(&account_folder)?;
+
+    Ok(())
 }

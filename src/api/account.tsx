@@ -3,8 +3,12 @@ import { Account } from "../rustTypes/Account";
 import { CashFlow } from "../rustTypes/CashFlow";
 
 export const listAccounts = async (): Promise<string[]> => {
-  return invoke<string[]>("list_available_scenarios");
+  return invoke<string[]>("list_available_accounts");
 };
+
+export const listAccountsDetail = async (): Promise<Account[]> => {
+  return invoke<Account[]>("list_available_accounts_detail");
+}
 
 export const getCashFlowsFromConfig = async (
   accountName: string,
@@ -26,3 +30,9 @@ export const saveAccount = async (account: Account): Promise<void> => {
     account: JSON.stringify(account),
   });
 };
+
+export const deleteAccount = async (accountName: string): Promise<void> => {
+  await invoke<void>("delete_account", {
+    accountName,
+  });
+}
