@@ -1,116 +1,102 @@
-import { Button, Divider, Title } from "@tremor/react";
+import { Button } from "@tremor/react";
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeftIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { useAccountStore } from "./store/Account";
-import { AccountSelect } from "./common/Select";
+import { useNavigate, useLocation } from "react-router-dom";
 import { navContext } from "./common/NavProvider";
-import { saveAccount } from "./api/account";
-
-const capitalizeFirstLetter = (s: string): string => {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
-
-const NavButton: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [previousRoot, setPreviousRoot] = React.useState<string | null>(null);
-  const state = useAccountStore();
-  const previousRootName =
-    previousRoot && capitalizeFirstLetter(previousRoot?.split("/")[1]);
-
-  if (location.pathname.toLowerCase().includes("scenario")) {
-    if (previousRoot && previousRootName) {
-      return (
-        <Button
-          size="md"
-          variant="light"
-          icon={ArrowLeftIcon}
-          onClick={() => {
-            saveAccount(state);
-            setPreviousRoot(previousRoot);
-            navigate(previousRoot.toLowerCase());
-          }}
-        >
-          Go Back to {previousRootName}
-        </Button>
-      );
-    } else {
-      return (
-        <Button
-          size="md"
-          variant="light"
-          icon={ArrowLeftIcon}
-          onClick={() => {
-            saveAccount(state);
-            setPreviousRoot("/");
-            navigate("/");
-          }}
-        >
-          Budget
-        </Button>
-      );
-    }
-  } else {
-    return (
-      <Button
-        size="md"
-        variant="light"
-        icon={Cog6ToothIcon}
-        onClick={() => {
-          setPreviousRoot(location.pathname);
-          navigate(`/scenario/${state.name}`);
-        }}
-      >
-        Edit Scenario
-      </Button>
-    );
-  }
-};
+import {
+  Square3Stack3DIcon,
+  Cog6ToothIcon,
+  // InboxArrowDownIcon,
+  ChartBarIcon,
+  PresentationChartLineIcon,
+} from "@heroicons/react/24/outline";
+import { useAccountSelectionStore } from "./pages/main/home/Store";
+// import { open } from "@tauri-apps/plugin-dialog";
+// import { importAccount } from "./api/import";
 
 const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation();
+  const navigate = useNavigate();
   const [auxButtons, setAuxButtons] = useState<React.ReactNode>(null);
-  const [_, subtitle, ...pages] = location.pathname.split("/");
+  const { selectedAccounts } = useAccountSelectionStore();
+  const l = useLocation();
 
   return (
     <navContext.Provider value={{ auxButtons, setAuxButtons }}>
       <div>
-        <nav className="flex flex-row justify-between">
-          <div className="flex flex-row">
-            <ul className="flex items-center space-x-2">
-              <li>
-                <Link to={"/"}>
-                  <Title className="font-light hover:opacity-80 active:opacity-70">
-                    Budget
-                  </Title>
-                </Link>
-              </li>
-              {subtitle && <Title className="font-light">//</Title>}
-              <li>
-                {pages ? (
-                  <Link to={`/${subtitle}`}>
-                    <Title className="font-light hover:opacity-80 active:opacity-70">
-                      {subtitle && capitalizeFirstLetter(subtitle)}
-                    </Title>
-                  </Link>
-                ) : (
-                  <Title className="font-light">
-                    {subtitle && capitalizeFirstLetter(subtitle)}
-                  </Title>
-                )}
-              </li>
-            </ul>
+        <div className="flex h-full flex-row">
+          <div className="bg-tremor -mr-2 h-full w-[75px] py-4">
+            <div className="flex h-full flex-col justify-between">
+              <div className="flex flex-col justify-start gap-8">
+                <Button
+                  variant="light"
+                  icon={
+                    l.pathname.startsWith("/account/budget")
+                      ? Cog6ToothIcon
+                      : ChartBarIcon
+                  }
+                  color="slate"
+                  size="lg"
+                  tooltip="Account Forecast"
+                  disabled={!l.pathname.startsWith("/account")}
+                  onClick={() => {
+                    l.pathname.startsWith("/account/budget")
+                      ? navigate(
+                          l.pathname.replace("/account/budget", "/account"),
+                        )
+                      : navigate(
+                          l.pathname.replace("/account", "/account/budget"),
+                        );
+                  }}
+                />
+                <Button
+                  variant="light"
+                  icon={PresentationChartLineIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="Combined Forecast"
+                  onClick={() => {
+                    const accounts = new URLSearchParams();
+                    accounts.append("accounts", selectedAccounts.join(","));
+                    navigate("/scenario?" + accounts.toString());
+                  }}
+                />
+                <Button
+                  color="slate"
+                  variant="light"
+                  icon={Square3Stack3DIcon}
+                  size="lg"
+                  tooltip="Manage Accounts"
+                  onClick={() => navigate("/")}
+                />
+                {/* <Button
+                  variant="light"
+                  icon={InboxArrowDownIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="Import Accounts"
+                  onClick={async () => {
+                    console.log("opening");
+                    const file = await open();
+                    file && (await importAccount(file.path));
+                  }}
+                /> */}
+                {auxButtons}
+              </div>
+              <div className="flex flex-col justify-end gap-4">
+                <Button
+                  variant="light"
+                  icon={Cog6ToothIcon}
+                  color="slate"
+                  size="lg"
+                  tooltip="Settings"
+                  onClick={() => null}
+                />
+              </div>
+            </div>
           </div>
-          <AccountSelect
-            className={"flex max-w-[500px] flex-grow flex-row gap-2"}
-          >
-            {auxButtons}
-          </AccountSelect>
-          <NavButton />
-        </nav>
-        <Divider />
-        {children}
+          <div className="flex w-full flex-col p-2">
+            <div className="flex-grow border-l pl-2">{children}</div>
+          </div>
+        </div>
       </div>
     </navContext.Provider>
   );

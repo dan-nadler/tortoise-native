@@ -1,6 +1,6 @@
 {
-  "productName": "tortoise-native",
-  "version": "0.7.1",
+  "productName": "The Tortoise",
+  "version": "0.8.0",
   "identifier": "io.thetortoise.dev",
   "build": {
     "beforeBuildCommand": "npm run build",
@@ -18,7 +18,8 @@
         "height": 720,
         "resizable": true,
         "title": "The Tortoise",
-        "width": 1440
+        "width": 1440,
+        "label": "main"
       }
     ],
     "withGlobalTauri": false

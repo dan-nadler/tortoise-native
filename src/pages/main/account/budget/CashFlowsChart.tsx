@@ -1,8 +1,8 @@
 import React from "react";
 import { BarChart, Card, Title } from "@tremor/react";
-import { SimulationResult } from "../rustTypes/SimulationResult";
-import { Payment } from "../rustTypes/Payment";
-import { valueFormatter } from "../common/ValueFormatter";
+import { SimulationResult } from "../../../../rustTypes/SimulationResult";
+import { Payment } from "../../../../rustTypes/Payment";
+import { valueFormatter } from "../../../../common/ValueFormatter";
 
 export const formatResultsForCashFlowChart = (results: SimulationResult) => {
   const cashFlowNames: string[] = results.payments.map(
@@ -53,8 +53,7 @@ export const formatResultsForCashFlowChart = (results: SimulationResult) => {
       return ["blue", "teal", "amber", "rose", "indigo", "emerald"][index % 6];
     },
   );
-  console.log(uniqueCashFlowNames.length);
-  console.log(chartDataArray.length);
+
   return {
     data: chartDataArray,
     categories: uniqueCashFlowNames,

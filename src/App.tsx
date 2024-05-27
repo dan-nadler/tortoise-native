@@ -1,70 +1,31 @@
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import Budget from "./budget/Main";
-import Retirement from "./retirement/Main";
+import Budget from "./pages/main/account/budget/Main";
+import Retirement from "./pages/main/retirement/Main";
 import Nav from "./Nav";
-import Scenario from "./scenario/Main";
-import CashFlowForm from "./scenario/CashFlow";
+import Account from "./pages/main/account/Main";
+import CashFlowForm from "./pages/main/account/CashFlow";
+import Scenario from "./pages/main/scenario/Main";
 import { Grid } from "@tremor/react";
-
-// const Home: React.FC = () => {
-//   return (
-//     <div>
-//       <div className="flex flex-col gap-4">
-//         <div className="flex flex-col gap-2">
-//           <div>
-//             <Link to="/scenario">
-//               <Subtitle
-//                 color="slate"
-//                 className="font-light hover:opacity-80 active:opacity-70"
-//               >
-//                 Scenarios
-//               </Subtitle>
-//             </Link>
-//           </div>
-//           <div>
-//             <Link to="/budget">
-//               <Subtitle
-//                 color="slate"
-//                 className="font-light hover:opacity-80 active:opacity-70"
-//               >
-//                 Budget
-//               </Subtitle>
-//             </Link>
-//           </div>
-//           <div>
-//             <Link to="/retirement">
-//               <Subtitle
-//                 color="slate"
-//                 className="font-light hover:opacity-80 active:opacity-70"
-//               >
-//                 Retirement
-//               </Subtitle>
-//             </Link>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
+import Home from "./pages/main/home/Main";
 
 const App: React.FC = () => {
-  
   return (
-      <Grid className="min-h-dvh bg-tremor-background p-4 dark:bg-dark-tremor-background">
-        <MemoryRouter>
-          <Nav>
-            <Routes>
-              <Route path="/" Component={Budget} />
-              <Route path="/budget" Component={Budget} />
-              <Route path="/retirement" Component={Retirement} />
-              <Route path="/scenario" Component={Scenario} />
-              <Route path="/scenario/:name" Component={Scenario} />
-              <Route path="/scenario/:name/:index" Component={CashFlowForm} />
-            </Routes>
-          </Nav>
-        </MemoryRouter>
-      </Grid>
+    <Grid className="min-h-dvh bg-tremor-background dark:bg-dark-tremor-background">
+      <MemoryRouter>
+        <Nav>
+          <Routes>
+            <Route path="/" Component={Home} />
+            <Route path="/retirement" Component={Retirement} />
+            <Route path="/account" Component={Account} />
+            <Route path="/account/:name" Component={Account} />
+            <Route path="/account/:name/:index" Component={CashFlowForm} />
+            <Route path="/account/budget/:name" Component={Budget} />
+            <Route path="/scenario" Component={Scenario} />
+          </Routes>
+        </Nav>
+      </MemoryRouter>
+    </Grid>
   );
 };
 
