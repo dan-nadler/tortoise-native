@@ -4490,7 +4490,7 @@ dependencies = [
 
 [[package]]
 name = "tortoise-native"
-version = "0.7.2"
+version = "0.8.0"
 dependencies = [
  "chrono",
  "dirs",

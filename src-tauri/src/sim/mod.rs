@@ -3,11 +3,9 @@ use crate::sim::portfolio::Invest;
 use ndarray::Array1;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::hash::Hash;
-use tauri::http::uri::Port;
 use ts_rs::TS;
 
-use self::portfolio::{Asset, Portfolio};
+use self::portfolio::Portfolio;
 pub mod cash;
 pub mod examples;
 pub mod excel;
@@ -127,6 +125,8 @@ pub fn run_simulation(scenario: Scenario) -> Result<HashMap<String, SimulationRe
             let portfolio = &invested_account.portfolio;
             let num_samples = &scenario.num_samples;
             let account_results = results.get_mut(&account.name).unwrap();
+            
+            #[allow(unused_assignments)]
             let mut bd: Array1<f64> = Array1::zeros(*num_samples);
 
             let p: Option<&Array1<f64>> = prev.get::<String>(&account.name);

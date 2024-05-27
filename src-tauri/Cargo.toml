@@ -1,6 +1,6 @@
 [package]
 name = "tortoise-native"
-version = "0.7.2"
+version = "0.8.0"
 description = "A financial forecasting and planning tool."
 authors = ["Dan Nadler <dan@thetortoise.io>"]
 license = "GNUv3"

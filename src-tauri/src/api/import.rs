@@ -17,8 +17,8 @@ pub async fn import_account(file_path: &str, handle: tauri::AppHandle) -> Result
     .build();
 
     match window {
-        Ok(w) => {}
-        Err(e) => {
+        Ok(_w) => {}
+        Err(_e) => {
             return Err("Error creating account import window".to_string());
         }
     }
