@@ -379,7 +379,7 @@ fn test_get_account_balance_at() {
         0.0,
         vec![CashFlow::new(
             Some("Test Cash Flow".to_string()),
-            100.0,
+            1200.0,
             Some(Frequency::MonthStart),
             None,
             None,

@@ -69,16 +69,17 @@ pub async fn run_account_simulation(
     portfolio_filename: Option<String>,
 ) -> Result<Value, String> {
     let account = io::read_account(&account_name);
+
+    if !account.is_ok() {
+        return Err("{\"error\": \"Error loading account\"}".to_string());
+    }
+
     let portfolio = match portfolio_filename {
         Some(p) => {
             Some(load_config::<sim::portfolio::Portfolio>(p).expect("Could not load portfolio"))
         }
         None => sim::portfolio::Portfolio::default(),
     };
-
-    if !account.is_ok() {
-        return Err("{\"error\": \"Error loading account\"}".to_string());
-    }
 
     let acc = account.unwrap();
 

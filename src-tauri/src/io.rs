@@ -1,6 +1,10 @@
 use crate::sim::cash::Account;
 use std::ffi::OsStr;
-use std::fs; // TODO: replace with Tauri's FS or another store
+use std::fs;
+use std::io;
+use serde::de::Error;
+// TODO: replace with Tauri's FS or another store
+use serde_yaml;
 use std::path::PathBuf;
 
 fn save_dir() -> PathBuf {
@@ -105,7 +109,7 @@ pub fn list_accounts_detail() -> Vec<Account> {
     account_details
 }
 
-fn get_latest_account_version(account_name: &str) -> Option<String> {
+fn get_latest_account_version(account_name: &str) -> Result<String, io::Error> {
     let dir = get_or_create_accounts_save_dir();
     let account_folder = dir.join(account_name);
 
@@ -126,15 +130,22 @@ fn get_latest_account_version(account_name: &str) -> Option<String> {
     }
 
     versions.sort();
-    versions.last().cloned()
+    versions.last().cloned().ok_or(std::io::Error::new(
+        io::ErrorKind::NotFound,
+        "No versions found",
+    ))
 }
 
 pub fn read_account(account_name: &str) -> Result<Account, serde_yaml::Error> {
     let dir = get_or_create_accounts_save_dir();
     let account_folder = dir.join(account_name);
 
-    let latest_version = get_latest_account_version(account_name).expect("No account found");
-    let account_path = account_folder.join(latest_version);
+    let latest_version = get_latest_account_version(account_name);
+    if latest_version.is_err() {
+        return Err(serde_yaml::Error::custom("No versions found"));
+    }
+
+    let account_path = account_folder.join(latest_version.unwrap());
 
     let account_str =
         fs::read_to_string(account_path).expect("Could not read account file to string");
