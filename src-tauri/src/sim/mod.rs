@@ -5,7 +5,8 @@ use serde::Serialize;
 use std::collections::HashMap;
 use ts_rs::TS;
 
-use self::portfolio::Portfolio;
+#[allow(unused_imports)]
+use self::portfolio::{Asset, Portfolio};
 pub mod cash;
 pub mod examples;
 pub mod excel;
