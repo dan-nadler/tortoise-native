@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest]
+        platform: [self-hosted]
 
     runs-on: ${{ matrix.platform }}
     steps:
