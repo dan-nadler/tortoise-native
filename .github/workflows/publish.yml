@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [self-hosted]
+        platform: [macos-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -26,6 +26,9 @@ jobs:
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
+
+      - name: add Rust target
+        run: rustup target add x86_64-apple-darwin
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
