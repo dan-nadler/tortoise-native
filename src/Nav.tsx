@@ -10,6 +10,7 @@ import {
   PresentationChartLineIcon,
 } from "@heroicons/react/24/outline";
 import { useAccountSelectionStore } from "./pages/main/home/Store";
+import { useAccountStore } from "./store/Account";
 // import { open } from "@tauri-apps/plugin-dialog";
 // import { importAccount } from "./api/import";
 
@@ -17,6 +18,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const [auxButtons, setAuxButtons] = useState<React.ReactNode>(null);
   const { selectedAccounts } = useAccountSelectionStore();
+  const { name } = useAccountStore();
   const l = useLocation();
 
   return (
@@ -26,6 +28,7 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="bg-tremor -mr-2 h-full w-[75px] py-4">
             <div className="flex h-full flex-col justify-between">
               <div className="flex flex-col justify-start gap-8">
+                {/* TODO: The navigation here is buggy. Need to get the active account ID properly. */}
                 <Button
                   variant="light"
                   icon={
@@ -39,12 +42,8 @@ const Nav: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   disabled={!l.pathname.startsWith("/account")}
                   onClick={() => {
                     l.pathname.startsWith("/account/budget")
-                      ? navigate(
-                          l.pathname.replace("/account/budget", "/account"),
-                        )
-                      : navigate(
-                          l.pathname.replace("/account", "/account/budget"),
-                        );
+                      ? navigate(`/account/${name}`)
+                      : navigate(`/account/budget/${name}`);
                   }}
                 />
                 <Button

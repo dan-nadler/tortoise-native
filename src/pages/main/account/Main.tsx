@@ -39,6 +39,25 @@ const frequencyToShortString = (frequency: string): string => {
   }
 };
 
+const frequencyFraction = (frequency: string): number => {
+  switch (frequency) {
+    case "Once":
+      return 1.0;
+    case "BusinesDay":
+      return 1 / 252.0;
+    case "MonthStart":
+      return 1 / 12.0;
+    case "MonthEnd":
+      return 1 / 12.0;
+    case "SemiMonthly":
+      return 1 / 24.0;
+    case "Annually":
+      return 1.0;
+    default:
+      return 1.0;
+  }
+};
+
 const AccountForm: React.FC = () => {
   const {
     name,
@@ -97,11 +116,12 @@ const CashFlowCard: React.FC<{
   scenarioName: string;
   item: CashFlow;
   i: number;
-}> = ({ scenarioName, item, i }) => {
+  hidden: boolean;
+}> = ({ scenarioName, item, i, hidden }) => {
   const navigate = useNavigate();
   return (
     <Card
-      className={`flex flex-col flex-wrap py-4 hover:cursor-pointer 
+      className={`flex flex-col flex-wrap py-4 hover:cursor-pointer ${hidden ? "hidden" : ""}
       hover:bg-tremor-background-muted active:bg-tremor-background-subtle
       dark:hover:bg-dark-tremor-background-muted dark:active:bg-dark-tremor-background-subtle`}
       color="neutral"
@@ -137,7 +157,12 @@ const CashFlowCard: React.FC<{
             }
             tooltip={item.tax_rate ? `${item.tax_rate * 100}% tax` : "No tax"}
           >
-            {formatNumber(item.amount)}
+            <span style={{ marginRight: 0, paddingRight: 0 }}>
+              {formatNumber(item.amount * frequencyFraction(item.frequency))}{" "}
+            </span>
+            <span style={{ fontSize: "0.6em", marginLeft: 0, paddingLeft: 0 }}>
+              /period
+            </span>
           </BadgeDelta>
         </Flex>
       </Flex>
@@ -167,17 +192,31 @@ const CashFlowCards: React.FC = () => {
       />
       <Grid numItemsSm={2} numItemsLg={3} className="gap-2">
         {cash_flows
-          .filter((item) =>
-            filter
-              .split(" ")
-              .every(
-                (f) =>
-                  item.name?.toLowerCase().includes(f.toLocaleLowerCase()) ||
-                  item.tags?.some((t) => ("#" + t).toLowerCase().includes(f.toLocaleLowerCase())),
-              ),
-          )
-          .map((item, i) => (
-            <CashFlowCard key={i} scenarioName={name} item={item} i={i} />
+          .map((item) => {
+            if (
+              filter
+                .split(" ")
+                .every(
+                  (f) =>
+                    item.name?.toLowerCase().includes(f.toLocaleLowerCase()) ||
+                    item.tags?.some((t) =>
+                      ("#" + t).toLowerCase().includes(f.toLocaleLowerCase()),
+                    ),
+                )
+            ) {
+              return { item, hidden: false };
+            } else {
+              return { item, hidden: true };
+            }
+          })
+          .map(({ item, hidden }, i) => (
+            <CashFlowCard
+              key={i}
+              scenarioName={name}
+              item={item}
+              i={i}
+              hidden={hidden}
+            />
           ))}
         <Card
           className={`flex cursor-pointer flex-col flex-wrap py-4 
